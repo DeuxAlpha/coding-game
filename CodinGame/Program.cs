@@ -1,4 +1,4 @@
-using CodinGame.Games;
+using CodinGame.GameSelection;
 
 namespace CodinGame
 {

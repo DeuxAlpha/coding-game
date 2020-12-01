@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 
-namespace CodinGame.Utilities
+namespace CodinGame.Utilities.Game
 {
     public static class Logger
     {

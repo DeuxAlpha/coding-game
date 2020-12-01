@@ -1,5 +1,4 @@
-using System;
-using CodinGame.Utilities;
+using CodinGame.Utilities.Game;
 
 namespace CodinGame.GameOfDrones
 {
@@ -11,7 +10,7 @@ namespace CodinGame.GameOfDrones
             // To debug: Console.Error.WriteLine("Debug messages...");
 
             // output a destination point to be reached by one of your drones. The first line corresponds to the first of your drones that you were provided as input, the next to the second, etc.
-            Console.WriteLine("20 20");
+            Actions.Commit("20 20");
         }
     }
 }

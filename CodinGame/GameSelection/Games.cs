@@ -1,4 +1,4 @@
-namespace CodinGame.Games
+namespace CodinGame.GameSelection
 {
     public enum Game
     {

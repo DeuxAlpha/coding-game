@@ -1,7 +1,7 @@
 using System;
 using CodinGame.GameOfDrones;
 
-namespace CodinGame.Games
+namespace CodinGame.GameSelection
 {
     public static class GameManager
     {
