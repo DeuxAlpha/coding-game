@@ -2,7 +2,7 @@ using CodinGame.Games;
 
 namespace CodinGame
 {
-    internal class Player
+    public class Program
     {
         private static void Main(string[] args)
         {
