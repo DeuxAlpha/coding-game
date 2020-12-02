@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CodinGame.GameOfDrones.Models;
 
 namespace CodinGame.GameOfDrones
@@ -16,6 +17,7 @@ namespace CodinGame.GameOfDrones
         public static int ZoneCount { get; private set; }
         public static List<Zone> Zones { get; private set; }
         public static List<Player> Players { get; private set; }
+        public static Player Player => Players.First(player => player.IsPlayer);
 
         public static void Play()
         {

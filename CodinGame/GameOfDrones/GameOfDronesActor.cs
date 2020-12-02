@@ -1,4 +1,6 @@
+using System.Linq;
 using CodinGame.Utilities.Game;
+using CodinGame.Utilities.Maths;
 
 namespace CodinGame.GameOfDrones
 {
@@ -10,7 +12,26 @@ namespace CodinGame.GameOfDrones
             // To debug: Console.Error.WriteLine("Debug messages...");
 
             // output a destination point to be reached by one of your drones. The first line corresponds to the first of your drones that you were provided as input, the next to the second, etc.
-            Actions.Commit("20 20");
+            Actions.Commit(GoToNearestZone(droneIndex));
+        }
+
+        public string GoToNearestZone(int droneIndex)
+        {
+            var drone = GameOfDronesManager.Player.Drones[droneIndex];
+            var zones = GameOfDronesManager.Zones.Select(zone => new
+            {
+                zone.CenterX,
+                zone.CenterY,
+                zone.OwnerId,
+                DistanceToCurrentDrone = Trigonometry.GetDistance(zone.CenterX, zone.CenterY, drone.X, drone.Y)
+            });
+            Logger.Log("My Drone", drone);
+            Logger.Log("Zones", zones);
+            var nearestZone = zones
+                .OrderBy(zone => zone.DistanceToCurrentDrone)
+                .First();
+            Logger.Log("Nearest Zone", nearestZone);
+            return $"{nearestZone.CenterX} {nearestZone.CenterY}";
         }
     }
 }
