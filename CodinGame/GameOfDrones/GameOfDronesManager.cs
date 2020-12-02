@@ -46,8 +46,12 @@ namespace CodinGame.GameOfDrones
                 var y = int.Parse(inputs[1]);
                 Zones.Add(new Zone
                 {
-                    CenterX = x,
-                    CenterY = y
+                    Center = new Cell
+                    {
+                        X = x,
+                        Y = y
+                    },
+                    OwnerId = -1
                 });
             }
 

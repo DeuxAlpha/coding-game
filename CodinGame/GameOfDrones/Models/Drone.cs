@@ -1,14 +1,16 @@
+using System.Collections.Generic;
+
 namespace CodinGame.GameOfDrones.Models
 {
     public class Drone
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public Cell Location { get; set; }
+        public List<Cell> LocationHistory { get; set; }
 
         public void UpdateLocation(int x, int y)
         {
-            X = x;
-            Y = y;
+            Location.X = x;
+            Location.Y = y;
         }
     }
 }

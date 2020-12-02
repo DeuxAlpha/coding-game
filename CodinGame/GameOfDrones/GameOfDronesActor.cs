@@ -20,10 +20,10 @@ namespace CodinGame.GameOfDrones
             var drone = GameOfDronesManager.Player.Drones[droneIndex];
             var zones = GameOfDronesManager.Zones.Select(zone => new
             {
-                zone.CenterX,
-                zone.CenterY,
+                zone.Center.X,
+                zone.Center.Y,
                 zone.OwnerId,
-                DistanceToCurrentDrone = Trigonometry.GetDistance(zone.CenterX, zone.CenterY, drone.X, drone.Y)
+                DistanceToCurrentDrone = Trigonometry.GetDistance(zone.Center.X, zone.Center.Y, drone.Location.X, drone.Location.Y)
             });
             Logger.Log("My Drone", drone);
             Logger.Log("Zones", zones);
@@ -31,7 +31,7 @@ namespace CodinGame.GameOfDrones
                 .OrderBy(zone => zone.DistanceToCurrentDrone)
                 .First();
             Logger.Log("Nearest Zone", nearestZone);
-            return $"{nearestZone.CenterX} {nearestZone.CenterY}";
+            return $"{nearestZone.X} {nearestZone.Y}";
         }
     }
 }
