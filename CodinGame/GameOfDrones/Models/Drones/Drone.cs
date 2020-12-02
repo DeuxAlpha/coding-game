@@ -4,8 +4,14 @@ namespace CodinGame.GameOfDrones.Models.Drones
 {
     public class Drone
     {
+        public int Id { get; set; }
         public Cell Location { get; set; } = new Cell();
         public List<Cell> LocationHistory { get; set; } = new List<Cell>();
+
+        public Drone(int id)
+        {
+            Id = id;
+        }
 
         public void UpdateLocation(int x, int y)
         {

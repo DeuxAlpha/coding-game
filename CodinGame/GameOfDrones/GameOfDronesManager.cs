@@ -4,6 +4,7 @@ using System.Linq;
 using CodinGame.GameOfDrones.Models;
 using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.GameOfDrones.Models.Players;
+using CodinGame.Utilities.Game;
 
 namespace CodinGame.GameOfDrones
 {
@@ -20,7 +21,9 @@ namespace CodinGame.GameOfDrones
         public static List<Zone> Zones { get; private set; }
         public static List<Participant> Participants { get; private set; }
         public static Player Player { get; private set; }
-        public static int Turns { get; private set; }
+        public static int Ticks { get; private set; }
+
+        public const int ZoneRadius = 100;
 
         public static void Play()
         {
@@ -34,7 +37,7 @@ namespace CodinGame.GameOfDrones
                 var participant = new Participant {Id = playerIndex};
                 for (var droneIndex = 0; droneIndex < DronesPerTeam; droneIndex++)
                 {
-                    participant.Drones.Add(new Drone());
+                    participant.Drones.Add(new Drone(droneIndex));
                 }
 
                 Participants.Add(participant);
@@ -51,6 +54,7 @@ namespace CodinGame.GameOfDrones
                 var y = int.Parse(inputs[1]);
                 Zones.Add(new Zone
                 {
+                    Id = i,
                     Center = new Cell
                     {
                         X = x,
@@ -86,10 +90,10 @@ namespace CodinGame.GameOfDrones
 
                 for (var i = 0; i < DronesPerTeam; i++)
                 {
-                    actor.Act(i);
+                    GameOfDronesActor.Act(i);
                 }
 
-                Turns += 1;
+                Ticks += 1;
             }
             // ReSharper disable once FunctionNeverReturns
         }
