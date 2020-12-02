@@ -9,6 +9,11 @@ namespace CodinGame.GameOfDrones.Models
 
         public void UpdateLocation(int x, int y)
         {
+            LocationHistory.Add(new Cell
+            {
+                X = Location.X,
+                Y = Location.Y
+            });
             Location.X = x;
             Location.Y = y;
         }
