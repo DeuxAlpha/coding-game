@@ -15,7 +15,6 @@ namespace CodinGame.GameOfDrones.Models.Drones
 
         public void UpdateLocation(int x, int y)
         {
-
             LocationHistory.Add(new Cell
             {
                 X = Location.X,

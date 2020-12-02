@@ -4,6 +4,7 @@ using System.Linq;
 using CodinGame.GameOfDrones.Models;
 using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.GameOfDrones.Models.Players;
+using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Game;
 
 namespace CodinGame.GameOfDrones
@@ -63,8 +64,6 @@ namespace CodinGame.GameOfDrones
                     OwnerId = -1
                 });
             }
-
-            var actor = new GameOfDronesActor();
 
             // game loop
             while (true)

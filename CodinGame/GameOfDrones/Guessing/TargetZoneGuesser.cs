@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using CodinGame.GameOfDrones.Models;
 using CodinGame.GameOfDrones.Models.Drones;
+using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Maths;
 
 namespace CodinGame.GameOfDrones.Guessing

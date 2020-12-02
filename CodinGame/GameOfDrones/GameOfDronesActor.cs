@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.GameOfDrones.Guessing;
 using CodinGame.GameOfDrones.Models;
+using CodinGame.GameOfDrones.Models.Drones;
+using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Maths;
 
@@ -11,24 +13,7 @@ namespace CodinGame.GameOfDrones
     {
         public static void Act(int droneIndex)
         {
-            var opponentDrones = GameOfDronesManager.Participants
-                .Where(participant => !participant.IsPlayer)
-                .Select(participant => new
-                {
-                    Drones = participant.Drones.Select(drone =>
-                    {
-                        var targetZone = TargetZoneGuesser.Guess(drone);
-                        return new
-                        {
-                            DroneId = drone.Id,
-                            TargetZone = targetZone,
-                            TargetDistance = Trigonometry.GetDistance(drone.Location.X, drone.Location.Y,
-                                targetZone.Center.X, targetZone.Center.Y),
-                            ParticipantId = participant.Id
-                        };
-                    })
-                })
-                .SelectMany(drone => drone.Drones);
+            var opponentDrones = OpponentDrone.GetOpponentDrones();
 
             var unoccupiedZones = GameOfDronesManager.Zones.Where(zone => zone.OwnerId == -1);
             var heldZones = GameOfDronesManager.Zones.Where(zone => zone.OwnerId == GameOfDronesManager.PlayerId)
