@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.GameOfDrones.Models;
+using CodinGame.GameOfDrones.Models.Drones;
+using CodinGame.GameOfDrones.Models.Players;
 
 namespace CodinGame.GameOfDrones
 {
@@ -16,26 +18,29 @@ namespace CodinGame.GameOfDrones
         /// <summary>Number of zones on the map (4 to 8).</summary>
         public static int ZoneCount { get; private set; }
         public static List<Zone> Zones { get; private set; }
-        public static List<Player> Players { get; private set; }
-        public static Player Player => Players.First(player => player.IsPlayer);
+        public static List<Participant> Participants { get; private set; }
+        public static Player Player { get; private set; }
+        public static int Turns { get; private set; }
 
         public static void Play()
         {
             var inputs = Console.ReadLine()?.Split(' ') ?? new string[] { };
             PlayerCount = int.Parse(inputs[0]); // number of players in the game (2 to 4 players)
-            Players = new List<Player>();
+            Participants = new List<Participant>();
             PlayerId = int.Parse(inputs[1]); // ID of your player (0, 1, 2, or 3)
             DronesPerTeam = int.Parse(inputs[2]); // number of drones in each team (3 to 11)
             for (var playerIndex = 0; playerIndex < PlayerCount; playerIndex++)
             {
-                var player = new Player {Id = playerIndex};
+                var participant = new Participant {Id = playerIndex};
                 for (var droneIndex = 0; droneIndex < DronesPerTeam; droneIndex++)
                 {
-                    player.Drones.Add(new Drone());
+                    participant.Drones.Add(new Drone());
                 }
 
-                Players.Add(player);
+                Participants.Add(participant);
             }
+
+            Player = new Player(Participants.First(participant => participant.IsPlayer));
             ZoneCount = int.Parse(inputs[3]); // number of zones on the map (4 to 8)
             Zones = new List<Zone>();
             for (var i = 0; i < ZoneCount; i++)
@@ -75,7 +80,7 @@ namespace CodinGame.GameOfDrones
                         // The first D lines contain the coordinates of drones of a player with the ID 0, the following D lines those of the drones of player 1, and thus it continues until the last player.
                         var droneX = int.Parse(inputs[0]);
                         var droneY = int.Parse(inputs[1]);
-                        Players[i].Drones[j].UpdateLocation(droneX, droneY);
+                        Participants[i].Drones[j].UpdateLocation(droneX, droneY);
                     }
                 }
 
@@ -83,6 +88,8 @@ namespace CodinGame.GameOfDrones
                 {
                     actor.Act(i);
                 }
+
+                Turns += 1;
             }
             // ReSharper disable once FunctionNeverReturns
         }

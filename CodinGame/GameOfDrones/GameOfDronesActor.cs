@@ -8,16 +8,20 @@ namespace CodinGame.GameOfDrones
     {
         public void Act(int droneIndex)
         {
-            // Write an action using Console.WriteLine()
-            // To debug: Console.Error.WriteLine("Debug messages...");
-
-            // output a destination point to be reached by one of your drones. The first line corresponds to the first of your drones that you were provided as input, the next to the second, etc.
-            Actions.Commit(GoToNearestZone(droneIndex));
+            // Go to nearest zone. Then analyse board and see easy additional points (empty zones).
+            // In bronze, nobody does a lot of logic in regards to resource management.
+            if (GameOfDronesManager.Turns < 10)
+                Actions.Commit(GoToNearestZone(droneIndex));
+            else
+            {
+                // Find empty zones and send as many as is feasible (while keeping all currently held zones occupied).
+                Logger.Log("Player", GameOfDronesManager.Player);
+            }
         }
 
-        public string GoToNearestZone(int droneIndex)
+        private static string GoToNearestZone(int droneIndex)
         {
-            var drone = GameOfDronesManager.Player.Drones[droneIndex];
+            var drone = GameOfDronesManager.Player.PlayerDrones[droneIndex];
             var zones = GameOfDronesManager.Zones.Select(zone => new
             {
                 zone.Center.X,
@@ -25,12 +29,9 @@ namespace CodinGame.GameOfDrones
                 zone.OwnerId,
                 DistanceToCurrentDrone = Trigonometry.GetDistance(zone.Center.X, zone.Center.Y, drone.Location.X, drone.Location.Y)
             });
-            Logger.Log("My Drone", drone);
-            Logger.Log("Zones", zones);
             var nearestZone = zones
                 .OrderBy(zone => zone.DistanceToCurrentDrone)
                 .First();
-            Logger.Log("Nearest Zone", nearestZone);
             return $"{nearestZone.X} {nearestZone.Y}";
         }
     }
