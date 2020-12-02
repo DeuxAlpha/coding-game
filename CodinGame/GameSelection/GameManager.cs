@@ -1,5 +1,7 @@
 using System;
 using CodinGame.GameOfDrones;
+using CodinGame.GreatEscape;
+using CodinGame.Interfaces;
 
 namespace CodinGame.GameSelection
 {
@@ -11,6 +13,9 @@ namespace CodinGame.GameSelection
             {
                 case Game.GameOfDrones:
                     GameOfDronesManager.Play();
+                    break;
+                case Game.GreatEscape:
+                    GreatEscapeManager.Play();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(game));
