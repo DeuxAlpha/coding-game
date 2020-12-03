@@ -12,10 +12,11 @@ namespace CodinGame.GreatEscape
         public static int Height { get; private set; }
         public static int PlayerCount { get; private set; }
         public static int PlayerId { get; private set; }
-        public static List<Participant> Players { get; } = new List<Participant>();
-        public static Participant Player => Players.First(player => player.Id == PlayerId);
+        public static List<Participant> Participants { get; } = new List<Participant>();
+        public static Participant Player => Participants.First(player => player.Id == PlayerId);
         public static int WallsOnBoard { get; private set; }
         public static List<Wall> Walls { get; private set; }
+        public static int Ticks { get; private set; }
 
         public static void Play()
         {
@@ -26,7 +27,7 @@ namespace CodinGame.GreatEscape
             PlayerId = int.Parse(inputs[3]); // id of my player (0 = 1st player, 1 = 2nd player, ...)
             for (var playerIndex = 0; playerIndex < PlayerCount; playerIndex++)
             {
-                Players.Add(new Participant
+                Participants.Add(new Participant
                 {
                     Id = playerIndex,
                 });
@@ -43,9 +44,9 @@ namespace CodinGame.GreatEscape
                     var x = int.Parse(inputs[0]); // x-coordinate of the player
                     var y = int.Parse(inputs[1]); // y-coordinate of the player
                     var wallsLeft = int.Parse(inputs[2]); // number of walls available for the player
-                    Players[i].Update(x, y, wallsLeft);
+                    Participants[i].Update(x, y, wallsLeft);
                     if (init)
-                        Players[i].SetOrigin();
+                        Participants[i].Initialize();
                 }
 
                 init = false;
@@ -60,12 +61,7 @@ namespace CodinGame.GreatEscape
                     var wallOrientation = inputs[2]; // wall orientation ('H' or 'V')
                     Walls.Add(new Wall
                     {
-                        StartLocation = {X = wallX, Y = wallY},
-                        EndLocation =
-                        {
-                            X = wallOrientation == "H" ? wallX + 2 : wallX,
-                            Y = wallOrientation == "V" ? wallY + 2 : wallY
-                        }
+                        Root = {X = wallX, Y = wallY},
                     });
                 }
 
@@ -75,6 +71,8 @@ namespace CodinGame.GreatEscape
 
                 // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
                 GreatEscapeActor.GetToTheOtherSide();
+
+                Ticks += 1;
             }
             // ReSharper disable once FunctionNeverReturns
         }

@@ -1,10 +1,10 @@
 namespace CodinGame.GreatEscape.Models
 {
-    public enum Origin
+    public enum Side
     {
-        Top,
+        Up,
         Right,
-        Bottom,
+        Down,
         Left
     }
 }
