@@ -1,4 +1,4 @@
-using CodinGame.GameSelection;
+using CodinGame.GreatEscape;
 
 namespace CodinGame
 {
@@ -6,7 +6,7 @@ namespace CodinGame
     {
         private static void Main(string[] args)
         {
-            GameManager.PlayGame(Game.GameOfDrones);
+            GreatEscapeManager.Play();
         }
     }
 }
