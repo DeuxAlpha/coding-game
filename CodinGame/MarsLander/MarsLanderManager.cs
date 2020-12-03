@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using CodinGame.MarsLander.Actors;
 using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Game;
 
@@ -31,8 +33,6 @@ namespace CodinGame.MarsLander
                 });
             }
 
-            Logger.Log("Surface", SurfaceList);
-
             // game loop
             while (true)
             {
@@ -48,9 +48,16 @@ namespace CodinGame.MarsLander
                 // Write an action using Console.WriteLine()
                 // To debug: Console.Error.WriteLine("Debug messages...");
 
+                var actor = new MarsLanderActor(MarsLander);
+                actor.ActRandomly(1);
+
+                var action = actor.Actions.Last();
+
+                Logger.Log("Current Lander", MarsLander);
+                Logger.Log("Future Lander", actor.MarsLander);
 
                 // rotate power. rotate is the desired rotation angle. power is the desired thrust power.
-                Console.WriteLine("-20 3");
+                Console.WriteLine(action);
             }
 
             // ReSharper disable once FunctionNeverReturns

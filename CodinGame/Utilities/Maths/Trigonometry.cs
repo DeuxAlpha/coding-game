@@ -20,5 +20,25 @@ namespace CodinGame.Utilities.Maths
             if (angle >= 360) return angle - 360;
             return angle;
         }
+
+        public static double GetHorizontalSpeedFraction(int angle, int decimals = 3)
+        {
+            return Math.Round(Math.Cos(ToRadians(angle)), decimals);
+        }
+
+        public static double GetVerticalSpeedFraction(int angle, int decimals = 3)
+        {
+            return Math.Round(Math.Sin(ToRadians(angle)), decimals);
+        }
+
+        public static double ToRadians(double angle)
+        {
+            return Math.PI / 180 * angle;
+        }
+
+        public static double ToDegrees(double radians)
+        {
+            return 180 / Math.PI * radians;
+        }
     }
 }
