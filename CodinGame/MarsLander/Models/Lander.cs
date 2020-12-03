@@ -13,22 +13,22 @@ namespace CodinGame.MarsLander.Models
         public int Rotation { get; set; }
         public int Power { get; set; }
 
-        public static Lander Clone(Lander original)
+        public Lander Clone()
         {
             var clone = new Lander
             {
-                X = original.X,
-                Y = original.Y,
-                HorizontalSpeed = original.HorizontalSpeed,
-                VerticalSpeed = original.VerticalSpeed,
-                Fuel = original.Fuel,
-                Rotation = original.Rotation,
-                Power = original.Power
+                X = X,
+                Y = Y,
+                HorizontalSpeed = HorizontalSpeed,
+                VerticalSpeed = VerticalSpeed,
+                Fuel = Fuel,
+                Rotation = Rotation,
+                Power = Power
             };
             return clone;
         }
 
-        public void Apply(int power, int rotation)
+        public void Apply(int rotation, int power)
         {
             if (Fuel < power) power = Fuel;
             Power = power;

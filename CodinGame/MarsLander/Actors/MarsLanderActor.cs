@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Random;
 
@@ -7,38 +7,65 @@ namespace CodinGame.MarsLander.Actors
 {
     public class MarsLanderActor
     {
-        public int Score { get; set; }
-        public Lander MarsLander { get; }
-        private readonly List<string> _actions = new List<string>();
+        public Lander Lander { get; private set; }
+        public Lander Original { get; set; }
+        private List<string> _actions = new List<string>();
         public IEnumerable<string> Actions => _actions;
 
-        public MarsLanderActor(Lander marsLander)
+        public MarsLanderActor(Lander lander)
         {
-            MarsLander = Lander.Clone(marsLander);
+            Original = lander.Clone();
+            Lander = lander.Clone();
         }
 
-        public void ActRandomly(int actions)
+        public void Reset()
         {
+            Lander = Original.Clone();
+        }
+
+        public void ApplyActions()
+        {
+            foreach (var actionArray in _actions.Select(action => action.Split(" ")))
+            {
+                Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
+            }
+        }
+
+        public void ApplyAction(string action)
+        {
+            var actionArray = action.Split(" ");
+            Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
+        }
+
+        public void StoreActions(IEnumerable<string> actions)
+        {
+            _actions = actions.ToList();
+        }
+
+        public IEnumerable<string> GetRandomActions(int actions)
+        {
+            var puppet = Lander.Clone();
+            var actionList = new List<string>();
+
             for (var i = 0; i < actions; i++)
             {
-                var maxNewAngle = MarsLander.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = MarsLander.Rotation - MarsLanderRules.MaxAngleChange;
+                var maxNewAngle = puppet.Rotation + MarsLanderRules.MaxAngleChange;
+                var minNewAngle = puppet.Rotation - MarsLanderRules.MaxAngleChange;
                 if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
                 if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
                 var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
 
-                var maxNewPower = MarsLander.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = MarsLander.Power - MarsLanderRules.MaxPowerChange;
+                var maxNewPower = puppet.Power + MarsLanderRules.MaxPowerChange;
+                var minNewPower = puppet.Power - MarsLanderRules.MaxPowerChange;
                 if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                randomAngle = 0;
-                randomPower = 0;
-
-                MarsLander.Apply(randomPower, randomAngle);
-                _actions.Add($"{MarsLander.Rotation} {MarsLander.Power}");
+                puppet.Apply(randomAngle, randomPower);
+                actionList.Add($"{randomAngle} {randomPower}");
             }
+
+            return actionList;
         }
     }
 }
