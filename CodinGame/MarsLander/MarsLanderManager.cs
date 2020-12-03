@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
+using CodinGame.MarsLander.Models;
 
 namespace CodinGame.MarsLander
 {
     public static class MarsLanderManager
     {
-
+        public static List<SurfaceElement> Surface { get; } = new List<SurfaceElement>();
 
         public static void Play()
         {
@@ -18,6 +20,11 @@ namespace CodinGame.MarsLander
                 var
                     landY = int.Parse(
                         inputs[1]); // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
+                Surface.Add(new SurfaceElement
+                {
+                    X = landX,
+                    Y = landY
+                });
             }
 
             // game loop

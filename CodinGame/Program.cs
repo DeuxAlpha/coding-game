@@ -1,4 +1,4 @@
-using CodinGame.GreatEscape;
+using CodinGame.MarsLander;
 
 namespace CodinGame
 {
@@ -6,7 +6,7 @@ namespace CodinGame
     {
         private static void Main(string[] args)
         {
-            GreatEscapeManager.Play();
+            MarsLanderManager.Play();
         }
     }
 }
