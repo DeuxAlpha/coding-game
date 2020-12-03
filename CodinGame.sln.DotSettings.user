@@ -2,6 +2,9 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2de1064b_002Dab49_002D4fa2_002Da53c_002Daa7de873aae2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetHorizontalSpeed_ValidParameters_ReturnsValidSpeed" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetSpeedFractionsTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetNewPositionsTests.GetYPosition_ValidParameters_ReturnsValidYPosition&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetNewPositionsTests.GetXPosition_ValidParameters_ReturnsValidXPosition&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetNewPositionsTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a43cc99a_002D0913_002D4071_002D9b1d_002D4e7affe2a34d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetSpeedFractionsTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
