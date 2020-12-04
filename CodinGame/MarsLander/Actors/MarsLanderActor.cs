@@ -9,8 +9,7 @@ namespace CodinGame.MarsLander.Actors
     {
         public Lander Lander { get; private set; }
         public Lander Original { get; set; }
-        private List<string> _actions = new List<string>();
-        public IEnumerable<string> Actions => _actions;
+        public List<string> Actions = new List<string>();
 
         public MarsLanderActor(Lander lander)
         {
@@ -25,7 +24,7 @@ namespace CodinGame.MarsLander.Actors
 
         public void ApplyActions()
         {
-            foreach (var actionArray in _actions.Select(action => action.Split(" ")))
+            foreach (var actionArray in Actions.Select(action => action.Split(" ")))
             {
                 Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
             }
@@ -39,7 +38,7 @@ namespace CodinGame.MarsLander.Actors
 
         public void StoreActions(IEnumerable<string> actions)
         {
-            _actions = actions.ToList();
+            Actions = actions.ToList();
         }
 
         public IEnumerable<string> GetRandomActions(int actions)

@@ -12,6 +12,8 @@ namespace CodinGame.MarsLander
     public static class MarsLanderManager
     {
         private static List<SurfaceElement> SurfaceList { get; } = new List<SurfaceElement>();
+        private static List<string> _winActions = new List<string>();
+
         public static IEnumerable<SurfaceElement> Surface => SurfaceList;
         public static Lander Lander = new Lander();
 
@@ -51,10 +53,20 @@ namespace CodinGame.MarsLander
                 // Write an action using Console.WriteLine()
                 // To debug: Console.Error.WriteLine("Debug messages...");
 
-                evolution.Run(10, 20, 25, Lander);
+                var potentialWinAction = GetPotentialWinActions();
+                if (potentialWinAction != null)
+                {
+                    Actions.Commit(potentialWinAction);
+                    continue;
+                }
+
+                if (evolution.FinalActor == null || !evolution.FinalActor.Actions.Any())
+                    evolution.Run(40, 100, 4, Lander);
 
                 // rotate power. rotate is the desired rotation angle. power is the desired thrust power.
-                Actions.Commit("20 2");
+                Actions.Commit(evolution.FinalActor.Actions.First());
+
+                evolution.FinalActor.Actions.RemoveAt(0);
             }
 
             // ReSharper disable once FunctionNeverReturns
@@ -67,7 +79,29 @@ namespace CodinGame.MarsLander
             var rightZoneUnderLander = SurfaceList[leftZoneUnderLanderIndex + 1];
             var zoneAngle = Trigonometry
                 .GetAngle(leftZoneUnderLander.X, leftZoneUnderLander.Y, rightZoneUnderLander.X, rightZoneUnderLander.Y);
-            return (int) Math.Round(Trigonometry.GetY(zoneAngle, lander.X - leftZoneUnderLander.X) + leftZoneUnderLander.Y - lander.Y);
+            return (int) Math.Round(
+                Trigonometry.GetY(zoneAngle, lander.X - leftZoneUnderLander.X) +
+                leftZoneUnderLander.Y - lander.Y);
+        }
+
+        public static Distance DistanceFromFlatSurfaceCenter(Lander lander)
+        {
+            for (var i = 0; i < SurfaceList.Count; i++)
+            {
+                var leftSurface = SurfaceList[i];
+                var rightSurface = SurfaceList[i + 1];
+                if (leftSurface.Y != rightSurface.Y) continue;
+                var centerX = rightSurface.X - leftSurface.X;
+
+                return new Distance
+                {
+                    HorizontalDistance = lander.X - centerX,
+                    VerticalDistance = lander.Y - lander.Y,
+                    FullDistance = Trigonometry.GetDistance(centerX, leftSurface.Y, lander.X, lander.Y)
+                };
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(SurfaceList), "I guess there is no flat surface.");
         }
 
         public static Distance DistanceFromFlatSurface(Lander lander)
@@ -80,31 +114,46 @@ namespace CodinGame.MarsLander
                 var side = Side.Above;
                 if (lander.X < leftSurface.X) side = Side.Left;
                 if (lander.X > rightSurface.X) side = Side.Right;
-                var verticalDistance = 0;
+                var horizontalDistance = 0;
                 var fullDistance = 0.0;
                 if (side == Side.Left)
                 {
-                    verticalDistance = leftSurface.X - lander.X;
+                    horizontalDistance = leftSurface.X - lander.X;
                     fullDistance = Trigonometry.GetDistance(leftSurface.X, leftSurface.Y, lander.X, lander.Y);
                 }
+
                 if (side == Side.Right)
                 {
-                    verticalDistance = lander.X - rightSurface.X;
+                    horizontalDistance = lander.X - rightSurface.X;
                     fullDistance = Trigonometry.GetDistance(rightSurface.X, rightSurface.Y, lander.X, lander.Y);
                 }
+
                 if (side == Side.Above)
                 {
                     fullDistance = Trigonometry.GetDistance(rightSurface.X, rightSurface.Y, lander.X, lander.Y);
                 }
+
                 return new Distance
                 {
-                    HorizontalDistance = lander.Y - leftSurface.Y,
-                    VerticalDistance = verticalDistance,
+                    HorizontalDistance = horizontalDistance,
+                    VerticalDistance = lander.Y - leftSurface.Y,
                     FullDistance = fullDistance
                 };
             }
 
             throw new ArgumentOutOfRangeException(nameof(SurfaceList), "I guess there is no flat surface.");
+        }
+
+        private static string GetPotentialWinActions()
+        {
+            var puppet = Lander.Clone();
+            puppet.LimitMomentum();
+            var distanceFromFlatSurface = DistanceFromFlatSurface(puppet);
+            if (Math.Abs(distanceFromFlatSurface.HorizontalDistance) > 0)
+                return null;
+            if (Math.Abs(distanceFromFlatSurface.VerticalDistance) < 50)
+                return "0 4";
+            return puppet.LimitMomentum();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Maths;
 
 namespace CodinGame.MarsLander.Models
@@ -46,6 +47,19 @@ namespace CodinGame.MarsLander.Models
                 VerticalSpeed = MarsLanderRules.MinVerticalSpeed;
             X += HorizontalSpeed;
             Y += VerticalSpeed;
+        }
+
+        public string LimitMomentum()
+        {
+            var puppet = Clone();
+            var currentAngle = Trigonometry.GetAngle(X, Y, X + HorizontalSpeed, Y + VerticalSpeed);
+            var oppositeAngle = currentAngle - 270; // Right is -90 in game, Left is 90
+            var currentSpeed = Trigonometry.GetDistance(X, Y, X + HorizontalSpeed, Y + VerticalSpeed);
+            var speed = 0;
+            if (oppositeAngle >= 0 && Rotation >= 0 || oppositeAngle <= 0 && Rotation <= 0)
+                speed = 4;
+
+            return $"{(int) Math.Round(oppositeAngle)} {speed}";
         }
     }
 }
