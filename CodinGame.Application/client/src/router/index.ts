@@ -1,13 +1,16 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import Home from '../views/Home.vue'
+import MarsLander from "@/views/MarsLander.vue";
 
-const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  }
-]
+const routes: Array<RouteRecordRaw> = [{
+  path: '/',
+  name: 'Home',
+  component: Home
+}, {
+  path: '/mars-lander',
+  name: 'MarsLander',
+  component: MarsLander
+}];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),

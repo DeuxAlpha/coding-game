@@ -1,11 +1,15 @@
 <template>
-  <h1>This ain't it m8</h1>
+
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
 
 export default defineComponent({
-  name: 'Home'
+  name: 'MarsLander'
 })
 </script>
+
+<style scoped lang="scss">
+
+</style>
