@@ -26,5 +26,9 @@
     <_ContentIncludedByDefault Remove="client\tsconfig.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CodinGame\CodinGame.csproj" />
+  </ItemGroup>
+
 
 </Project>

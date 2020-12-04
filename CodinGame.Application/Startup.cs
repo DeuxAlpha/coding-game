@@ -25,6 +25,10 @@ namespace CodinGame.Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy("CORS", builder =>
+            {
+                builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            }));
             services.AddControllers();
         }
 
@@ -35,6 +39,8 @@ namespace CodinGame.Application
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("CORS");
 
             app.UseHttpsRedirection();
 

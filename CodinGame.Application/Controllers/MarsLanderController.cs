@@ -1,17 +1,16 @@
-using System.Collections;
-using System.Threading.Tasks;
+using CodinGame.MarsLander.Storage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodinGame.Application.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("mars-lander")]
     public class MarsLanderController : Controller
     {
         [HttpGet("maps")]
-        public async Task<IActionResult> GetMaps()
+        public IActionResult GetMaps()
         {
-            return BadRequest("");
+            return Ok(Maps.Get());
         }
     }
 }
