@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {Map} from "@/models/mars-lander/Map";
+import {Map} from "@/views/mars-lander/models/Map";
 import {toPascal} from "@/helpers/PropertyTransformer";
 
 export class MarsLanderApi {

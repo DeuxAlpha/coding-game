@@ -1,11 +1,28 @@
 <template>
-  <h1>This ain't it m8</h1>
+  <label for="site">Select a site</label>
+  <select id="site" v-model="site" @change="onSiteSelected">
+    <option v-for="site in sites" :value="site.url">{{ site.name }}</option>
+  </select>
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, ref} from 'vue';
+import {useRouter} from "vue-router";
 
 export default defineComponent({
-  name: 'Home'
+  name: 'Home',
+  setup() {
+    const site = ref('');
+    const sites = [
+      {name: 'Mars Lander', url: 'mars-lander'}
+    ]
+    const router = useRouter();
+
+    function onSiteSelected() {
+      router.push(site.value);
+    }
+
+    return {site, sites, onSiteSelected};
+  }
 })
 </script>

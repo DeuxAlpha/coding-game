@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import Home from '../views/Home.vue'
-import MarsLander from "@/views/MarsLander.vue";
+import MarsLander from "@/views/mars-lander/View.vue";
 
 const routes: Array<RouteRecordRaw> = [{
   path: '/',
