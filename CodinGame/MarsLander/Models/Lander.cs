@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Maths;
 
@@ -6,57 +8,60 @@ namespace CodinGame.MarsLander.Models
 {
     public class Lander
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int HorizontalSpeed { get; set; }
-        public int VerticalSpeed { get; set; }
-        public int Fuel { get; set; }
-        public int Rotation { get; set; }
-        public int Power { get; set; }
+        public Situation Situation { get; set; }
+        public List<Situation> Situations { get; set; } = new List<Situation>();
+        public List<string> Actions { get; private set; } = new List<string>();
 
         public Lander Clone()
         {
             var clone = new Lander
             {
-                X = X,
-                Y = Y,
-                HorizontalSpeed = HorizontalSpeed,
-                VerticalSpeed = VerticalSpeed,
-                Fuel = Fuel,
-                Rotation = Rotation,
-                Power = Power
+                Situation = new Situation
+                {
+                    X = Situation.X,
+                    Y = Situation.Y,
+                    HorizontalSpeed = Situation.HorizontalSpeed,
+                    VerticalSpeed = Situation.VerticalSpeed,
+                    Fuel = Situation.Fuel,
+                    Rotation = Situation.Rotation,
+                    Power = Situation.Power,
+                },
+                Situations = Situations.ToList(),
+                Actions = Actions.ToList()
             };
             return clone;
         }
 
         public void Apply(int rotation, int power)
         {
-            if (Fuel < power) power = Fuel;
-            Power = power;
-            Rotation = rotation;
-            Fuel -= power;
-            HorizontalSpeed += (int) (Trigonometry.GetHorizontalSpeedFraction(Rotation) * Power);
-            if (HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
-                HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
-            if (HorizontalSpeed < MarsLanderRules.MinHorizontalSpeed)
-                HorizontalSpeed = MarsLanderRules.MinHorizontalSpeed;
-            VerticalSpeed += (int) (Trigonometry.GetVerticalSpeedFraction(Rotation) * Power - MarsLanderRules.Gravity);
-            if (VerticalSpeed > MarsLanderRules.MaxVerticalSpeed)
-                VerticalSpeed = MarsLanderRules.MaxVerticalSpeed;
-            if (VerticalSpeed < MarsLanderRules.MinVerticalSpeed)
-                VerticalSpeed = MarsLanderRules.MinVerticalSpeed;
-            X += HorizontalSpeed;
-            Y += VerticalSpeed;
+            if (Situation.Fuel < power) power = Situation.Fuel;
+            Situation.Power = power;
+            Situation.Rotation = rotation;
+            Situation.Fuel -= power;
+            Situation.HorizontalSpeed += (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation) * Situation.Power);
+            if (Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
+                Situation.HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
+            if (Situation.HorizontalSpeed < MarsLanderRules.MinHorizontalSpeed)
+                Situation.HorizontalSpeed = MarsLanderRules.MinHorizontalSpeed;
+            Situation.VerticalSpeed += (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation) * Situation.Power - MarsLanderRules.Gravity);
+            if (Situation.VerticalSpeed > MarsLanderRules.MaxVerticalSpeed)
+                Situation.VerticalSpeed = MarsLanderRules.MaxVerticalSpeed;
+            if (Situation.VerticalSpeed < MarsLanderRules.MinVerticalSpeed)
+                Situation.VerticalSpeed = MarsLanderRules.MinVerticalSpeed;
+            Situation.X += Situation.HorizontalSpeed;
+            Situation.Y += Situation.VerticalSpeed;
+            Situations.Add(Situation.Clone());
+            Actions.Add($"{rotation} {power}");
         }
 
         public string LimitMomentum()
         {
             var puppet = Clone();
-            var currentAngle = Trigonometry.GetAngle(X, Y, X + HorizontalSpeed, Y + VerticalSpeed);
+            var currentAngle = Trigonometry.GetAngle(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
             var oppositeAngle = currentAngle - 270; // Right is -90 in game, Left is 90
-            var currentSpeed = Trigonometry.GetDistance(X, Y, X + HorizontalSpeed, Y + VerticalSpeed);
+            var currentSpeed = Trigonometry.GetDistance(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
             var speed = 0;
-            if (oppositeAngle >= 0 && Rotation >= 0 || oppositeAngle <= 0 && Rotation <= 0)
+            if (oppositeAngle >= 0 && Situation.Rotation >= 0 || oppositeAngle <= 0 && Situation.Rotation <= 0)
                 speed = 4;
 
             return $"{(int) Math.Round(oppositeAngle)} {speed}";

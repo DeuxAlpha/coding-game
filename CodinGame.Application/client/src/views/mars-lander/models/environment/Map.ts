@@ -1,4 +1,4 @@
-import {MapElement} from "@/views/mars-lander/models/MapElement";
+import {MapElement} from "@/views/mars-lander/models/environment/MapElement";
 
 export class Map {
   public Name!: string;

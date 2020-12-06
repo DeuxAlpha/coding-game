@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
@@ -9,7 +10,6 @@ namespace CodinGame.MarsLander.Actors
     {
         public Lander Lander { get; private set; }
         public Lander Original { get; set; }
-        public List<string> Actions = new List<string>();
 
         public MarsLanderActor(Lander lander)
         {
@@ -22,9 +22,9 @@ namespace CodinGame.MarsLander.Actors
             Lander = Original.Clone();
         }
 
-        public void ApplyActions()
+        public void ApplyActions(IEnumerable<string> actions)
         {
-            foreach (var actionArray in Actions.Select(action => action.Split(" ")))
+            foreach (var actionArray in actions.Select(action => action.Split(" ")))
             {
                 Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
             }
@@ -36,11 +36,6 @@ namespace CodinGame.MarsLander.Actors
             Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
         }
 
-        public void StoreActions(IEnumerable<string> actions)
-        {
-            Actions = actions.ToList();
-        }
-
         public IEnumerable<string> GetRandomActions(int actions)
         {
             var puppet = Lander.Clone();
@@ -48,14 +43,14 @@ namespace CodinGame.MarsLander.Actors
 
             for (var i = 0; i < actions; i++)
             {
-                var maxNewAngle = puppet.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = puppet.Rotation - MarsLanderRules.MaxAngleChange;
+                var maxNewAngle = puppet.Situation.Rotation + MarsLanderRules.MaxAngleChange;
+                var minNewAngle = puppet.Situation.Rotation - MarsLanderRules.MaxAngleChange;
                 if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
                 if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
                 var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
 
-                var maxNewPower = puppet.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = puppet.Power - MarsLanderRules.MaxPowerChange;
+                var maxNewPower = puppet.Situation.Power + MarsLanderRules.MaxPowerChange;
+                var minNewPower = puppet.Situation.Power - MarsLanderRules.MaxPowerChange;
                 if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);

@@ -10,8 +10,15 @@ namespace CodinGame.MarsLander.Actors
     public class MarsLanderEvolution
     {
         public List<MarsLanderActor> Actors { get; set; }
-        public List<List<ActorAndScore>> Generations { get; } = new List<List<ActorAndScore>>();
-        public MarsLanderActor FinalActor { get; private set; }
+        public List<Generation> Generations { get; } = new List<Generation>();
+        public Lander FinalLander { get; private set; }
+
+        private readonly MarsLanderEnvironment _environment;
+
+        public MarsLanderEvolution(MarsLanderEnvironment environment)
+        {
+            _environment = environment;
+        }
 
         private void GenerateActors(int count, Lander original)
         {
@@ -27,16 +34,19 @@ namespace CodinGame.MarsLander.Actors
         {
             foreach (var actor in Actors)
             {
-                actor.StoreActions(actor.GetRandomActions(actions));
-                actor.ApplyActions();
+                actor.ApplyActions(actor.GetRandomActions(actions));
             }
         }
 
         private void Evolve()
         {
-            var actorAndScoreList = Actors.Select(ScoreActor).OrderBy(actor => actor.Score).ToList();
+            var actorAndScoreList = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).ToList();
 
-            Generations.Add(actorAndScoreList);
+            Generations.Add(new Generation
+            {
+                Actors = actorAndScoreList,
+                GenerationNumber = Generations.Count + 1
+            });
 
             const double betterBias = 0.8; // How likely it is that a better actor is used than a worse one.
             const double betterCutoff = 0.2; // Percentage of what are considered good actors vs bad ones.
@@ -47,9 +57,9 @@ namespace CodinGame.MarsLander.Actors
             {
                 var firstActor = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
                 var secondActor = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
-                var puppet = new MarsLanderActor(firstActor.Actor.Original);
+                var puppet = new MarsLanderActor(firstActor.Lander);
                 var actions = new List<string>();
-                for (var actionIndex = 0; actionIndex < firstActor.Actor.Actions.Count(); actionIndex++)
+                for (var actionIndex = 0; actionIndex < firstActor.Lander.Actions.Count; actionIndex++)
                 {
                     var action =
                         Randomizer.Gamble(
@@ -57,39 +67,38 @@ namespace CodinGame.MarsLander.Actors
                         puppet.GetRandomActions(1).First() :
                         Randomizer
                             .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                        firstActor.Actor.Actions.ElementAt(actionIndex) :
-                        secondActor.Actor.Actions.ElementAt(actionIndex);
+                        firstActor.Lander.Actions.ElementAt(actionIndex) :
+                        secondActor.Lander.Actions.ElementAt(actionIndex);
                     puppet.ApplyAction(action);
                     actions.Add(action);
                 }
 
                 // Basically creating an entirely new actor.
                 actor.Reset();
-                actor.StoreActions(actions);
-                actor.ApplyActions(); // Acting to get score for next evolution
+                actor.ApplyActions(actions); // Acting to get score for next evolution
             }
         }
 
-        private ActorAndScore GetBiasedActor(
+        private GenerationActor GetBiasedActor(
             double betterBias,
             int betterBiasCount,
-            IReadOnlyList<ActorAndScore> actorAndScoreList)
+            IReadOnlyList<GenerationActor> actorAndScoreList)
         {
             return Randomizer.Gamble(betterBias)
                 ? actorAndScoreList[Randomizer.GetValueBetween(0, betterBiasCount)]
                 : actorAndScoreList[Randomizer.GetValueBetween(betterBiasCount, Actors.Count - 1)];
         }
 
-        private static ActorAndScore ScoreActor(MarsLanderActor actor)
+        private static GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
-            var distanceFromSurface = MarsLanderManager.GetDistanceFromSurface(actor.Lander);
-            var horizontalSpeed = actor.Lander.HorizontalSpeed;
-            var verticalSpeed = actor.Lander.VerticalSpeed;
-            var rotation = actor.Lander.Rotation;
-            var distanceFromFlatSurface = MarsLanderManager.DistanceFromFlatSurfaceCenter(actor.Lander);
-            return new ActorAndScore
+            var distanceFromSurface = environment.GetDistanceFromSurface(actor.Lander);
+            var horizontalSpeed = actor.Lander.Situation.HorizontalSpeed;
+            var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
+            var rotation = actor.Lander.Situation.Rotation;
+            var distanceFromFlatSurface = environment.DistanceFromFlatSurfaceCenter(actor.Lander);
+            return new GenerationActor
             {
-                Actor = actor,
+                Lander = actor.Lander.Clone(),
                 Score =
                     Math.Abs(distanceFromSurface) * 1 +
                     Math.Abs(horizontalSpeed) * 3 +
@@ -110,9 +119,9 @@ namespace CodinGame.MarsLander.Actors
                 Evolve();
             }
 
-            var finalActorAndScore = Actors.Select(ScoreActor).OrderBy(actor => actor.Score).First();
+            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).First();
 
-            FinalActor = finalActorAndScore.Actor;
+            FinalLander = finalActorAndScore.Lander;
             Logger.Log("Final Score", finalActorAndScore.Score);
         }
     }
