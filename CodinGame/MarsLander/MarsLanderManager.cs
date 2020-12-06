@@ -38,7 +38,7 @@ namespace CodinGame.MarsLander
 
             _environment = new MarsLanderEnvironment(surfaceList);
 
-            var evolution = new MarsLanderEvolution(_environment);
+            var evolution = new MarsLanderEvolution(_environment, new AiWeight());
 
             // game loop
             while (true)

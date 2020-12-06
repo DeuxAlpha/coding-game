@@ -21,12 +21,14 @@ namespace CodinGame.Utilities.Maths
             return angle;
         }
 
-        public static double GetY(double angle, double xLength, int decimals = 3)
+        /// <summary>Basically, where on a Y-Axis you would end up if you moved the X distance at a particular angle.</summary>
+        public static double GetNewYPosition(double angle, double xLength, int decimals = 3)
         {
             return Math.Round(Math.Tan(ToRadians(angle)) * xLength, decimals);
         }
 
-        public static double GetX(double angle, double yLength, int decimals = 3)
+        /// <summary>Basically, where on a X-Axis you would end up if you moved the Y distance at a particular angle.</summary>
+        public static double GetNewXPosition(double angle, double yLength, int decimals = 3)
         {
             return Math.Round(yLength / Math.Tan(ToRadians(angle)), decimals);
         }

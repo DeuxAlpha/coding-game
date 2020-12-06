@@ -11,6 +11,7 @@ namespace CodinGame.MarsLander.Models
         public Situation Situation { get; set; }
         public List<Situation> Situations { get; set; } = new List<Situation>();
         public List<string> Actions { get; private set; } = new List<string>();
+        public LanderStatus Status { get; private set; }
 
         public Lander Clone()
         {
@@ -27,13 +28,15 @@ namespace CodinGame.MarsLander.Models
                     Power = Situation.Power,
                 },
                 Situations = Situations.ToList(),
-                Actions = Actions.ToList()
+                Actions = Actions.ToList(),
+                Status = Status
             };
             return clone;
         }
 
         public void Apply(int rotation, int power)
         {
+            if (Status != LanderStatus.Flying) return;
             if (Situation.Fuel < power) power = Situation.Fuel;
             Situation.Power = power;
             Situation.Rotation = rotation;
@@ -65,6 +68,41 @@ namespace CodinGame.MarsLander.Models
                 speed = 4;
 
             return $"{(int) Math.Round(oppositeAngle)} {speed}";
+        }
+
+        private void SetStatus(MarsLanderEnvironment environment)
+        {
+            if (Status != LanderStatus.Flying) return;
+            var previousSituation = Situations.LastOrDefault();
+            if (previousSituation == null)
+            {
+                Status = LanderStatus.Flying;
+                return;
+            }
+
+            if (environment.GetDistanceFromSurface(this) > 0)
+            {
+                Status = LanderStatus.Flying;
+                return;
+            }
+
+            // We just moved through the ground. So analyze speed and rotation and see if we landed or crashed.
+            // But first, make sure the ground is flat.
+            if (environment.GetDistanceFromFlatSurface(this).HorizontalDistance > 0)
+            {
+                Status = LanderStatus.Crashed;
+                return;
+            }
+
+            if (Situation.Rotation > MarsLanderRules.MaxLandingAngle ||
+                Situation.VerticalSpeed > MarsLanderRules.MaxVerticalLandingSpeed ||
+                Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalLandingSpeed)
+            {
+                Status = LanderStatus.Crashed;
+                return;
+            }
+
+            Status = LanderStatus.Landed;
         }
     }
 }
