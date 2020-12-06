@@ -1,71 +1,111 @@
 <template>
-  <div class="flex flex-col items-center min-h-screen">
-    <div class="flex flex-row items-baseline w-1/2">
-      <label class="mx-1" for="selected-map">Map</label>
-      <select class="mx-1 border border-gray-600" id="selected-map" v-model="selectedMap" @change="onMapChange">
-        <option v-for="mapElement of mapElements" :value="mapElement.Name">{{ mapElement.Name }}</option>
-      </select>
-      <AButton :disabled="!selectedMap" @click="requestLanding">Land</AButton>
+  <ALoadingOverlay :show="loading">
+    <div class="flex flex-col items-center min-h-screen">
+      <div class="flex flex-row items-baseline w-1/2">
+        <label class="mx-1" for="selected-map">Map</label>
+        <select class="mx-1 border border-gray-600" id="selected-map" v-model="selectedMap" @change="onMapChange">
+          <option v-for="mapElement of mapElements" :value="mapElement.Name">{{ mapElement.Name }}</option>
+        </select>
+        <AButton :disabled="!selectedMap" @click="requestLanding">Land</AButton>
 
-      <div class="ml-auto">
-        <AButton @click="expandParams = !expandParams">
-          <template v-if="expandParams">Hide Params</template>
-          <template v-else>Show Params</template>
-        </AButton>
-      </div>
-    </div>
-    <div v-show="expandParams" class="flex flex-col items-baseline w-1/2 mt-2">
-      <div class="flex flex-row w-full">
-        <div class="w-1/3">
-          <div class="flex flex-row">
-            <label class="w-56" for="horizontal-speed-weight">Horizontal Speed Weight</label>
-            <input type="number" class="w-14 border border-gray-500" id="horizontal-speed-weight" v-model="horizontalSpeedWeight">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="vertical-speed-weight">Vertical Speed Weight</label>
-            <input type="number" class="w-14 border border-gray-500" id="vertical-speed-weight" v-model="verticalSpeedWeight">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="rotation-weight">Rotation Weight</label>
-            <input type="number" class="w-14 border border-gray-500" id="rotation-weight" v-model="rotationWeight">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="vertical-distance-weight">Vertical Distance Weight</label>
-            <input type="number" class="w-14 border border-gray-500" id="vertical-distance-weight" v-model="verticalDistanceWeight">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="vertical-center-distance-weight">Vertical Center Distance Weight</label>
-            <input type="number" class="w-14 border border-gray-500" id="vertical-center-distance-weight" v-model="verticalCenterDistanceWeight">
-          </div>
-        </div>
-        <div class="w-1/3">
-          <div class="flex flex-row">
-            <label class="w-56" for="generation-request">Generations</label>
-            <input type="number" class="w-14 border border-gray-500" id="generation-request" v-model="generationRequest">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="population-request">Population</label>
-            <input type="number" class="w-14 border border-gray-500" id="population-request" v-model="populationRequest">
-          </div>
-          <div class="flex flex-row">
-            <label class="w-56" for="max-actions">Max Actions</label>
-            <input type="number" class="w-14 border border-gray-500" id="max-actions" v-model="maxActions">
-          </div>
+        <div class="ml-auto">
+          <AButton @click="expandParams = !expandParams">
+            <template v-if="expandParams">Hide Params</template>
+            <template v-else>Show Params</template>
+          </AButton>
         </div>
       </div>
+      <div v-show="expandParams" class="flex flex-col items-baseline w-1/2 mt-2">
+        <div class="flex flex-row w-full">
+          <div class="w-1/3">
+            <div class="flex flex-row">
+              <label class="w-56" for="horizontal-speed-weight">Horizontal Speed Weight</label>
+              <input type="number" class="w-14 border border-gray-500" id="horizontal-speed-weight"
+                     v-model="horizontalSpeedWeight">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="vertical-speed-weight">Vertical Speed Weight</label>
+              <input type="number" class="w-14 border border-gray-500" id="vertical-speed-weight"
+                     v-model="verticalSpeedWeight">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="rotation-weight">Rotation Weight</label>
+              <input type="number" class="w-14 border border-gray-500" id="rotation-weight" v-model="rotationWeight">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="vertical-distance-weight">Vertical Distance Weight</label>
+              <input type="number" class="w-14 border border-gray-500" id="vertical-distance-weight"
+                     v-model="verticalDistanceWeight">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="vertical-center-distance-weight">Vertical Center Distance Weight</label>
+              <input type="number" class="w-14 border border-gray-500" id="vertical-center-distance-weight"
+                     v-model="verticalCenterDistanceWeight">
+            </div>
+          </div>
+          <div class="w-1/3">
+            <div class="flex flex-row">
+              <label class="w-56" for="generation-request">Generations</label>
+              <input type="number" class="w-14 border border-gray-500" id="generation-request"
+                     v-model="generationRequest">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="population-request">Population</label>
+              <input type="number" class="w-14 border border-gray-500" id="population-request"
+                     v-model="populationRequest">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="max-actions">Max Actions</label>
+              <input type="number" class="w-14 border border-gray-500" id="max-actions" v-model="maxActions">
+            </div>
+          </div>
+          <div class="w-1/3">
+            <div class="flex flex-row">
+              <label for="initial-fuel" class="w-56">Initial Fuel</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-fuel" v-model="initialFuel">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-power" class="w-56">Initial Power</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-power" v-model="initialPower">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-rotation" class="w-56">Initial Rotation</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-rotation" v-model="initialRotation">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-x" class="w-56">Initial X</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-x" v-model="initialX">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-y" class="w-56">Initial Y</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-y" v-model="initialY">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-h-speed" class="w-56">Initial Horizontal Speed</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-h-speed"
+                     v-model="initialHorizontalSpeed">
+            </div>
+            <div class="flex flex-row">
+              <label for="initial-v-speed" class="w-56">Initial Vertical Speed</label>
+              <input type="number" class="w-14 border border-gray-500" id="initial-v-speed"
+                     v-model="initialVerticalSpeed">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="map" ref="map"/>
+      <div class="flex flex-row justify-between" v-show="selectedGeneration > 0">
+        <label class="mx-1" for="generation">Generation</label>
+        <select class="mx-1 border border-gray-600" id="generation" v-model="selectedGeneration">
+          <option v-for="generation in generations" :key="generation.GenerationNumber"
+                  :value="generation.GenerationNumber">
+            {{ generation.GenerationNumber }}
+          </option>
+        </select>
+        <button @click="onSubmitGenerationClicked">Submit</button>
+      </div>
     </div>
-    <div id="map" ref="map"/>
-    <div class="flex flex-row justify-between" v-show="selectedGeneration > 0">
-      <label class="mx-1" for="generation">Generation</label>
-      <select class="mx-1 border border-gray-600" id="generation" v-model="selectedGeneration">
-        <option v-for="generation in generations" :key="generation.GenerationNumber"
-                :value="generation.GenerationNumber">
-          {{ generation.GenerationNumber }}
-        </option>
-      </select>
-      <button @click="onSubmitGenerationClicked">Submit</button>
-    </div>
-  </div>
+  </ALoadingOverlay>
 </template>
 
 <script lang="ts">
@@ -79,10 +119,11 @@ import {LandRequest} from "@/views/mars-lander/api/requests/LandRequest";
 import {AiWeight} from "@/views/mars-lander/models/evolution/AiWeight";
 import {EvolutionParameters} from "@/views/mars-lander/models/evolution/EvolutionParameters";
 import {LanderStatus} from "@/views/mars-lander/models/evolution/LanderStatus";
+import ALoadingOverlay from "@/components/utilities/ALoadingOverlay.vue";
 
 export default defineComponent({
   name: 'CMarsLander',
-  components: {AButton},
+  components: {ALoadingOverlay, AButton},
   async setup() {
     const map = ref(null) as Ref<null | HTMLDivElement>;
     const selectedMap = ref('');
@@ -94,7 +135,15 @@ export default defineComponent({
     const generationRequest = ref(100);
     const populationRequest = ref(100);
     const maxActions = ref(-1);
+    const initialFuel = ref(0);
+    const initialPower = ref(0);
+    const initialRotation = ref(0);
+    const initialX = ref(0);
+    const initialY = ref(0);
+    const initialHorizontalSpeed = ref(0);
+    const initialVerticalSpeed = ref(0);
     const expandParams = ref(false);
+    const loading = ref(false);
 
     const marsLanderApi = new MarsLanderApi();
 
@@ -104,20 +153,31 @@ export default defineComponent({
 
     const selectedGeneration = ref(0);
 
+    function getMapToRender() {
+      return mapElements.find(element => element.Name === selectedMap.value) as Map;
+    }
+
     function onMapChange() {
       selectedGeneration.value = 0;
+      const mapToRender = getMapToRender();
+      initialFuel.value = mapToRender.InitialFuel;
+      initialPower.value = mapToRender.InitialPower;
+      initialRotation.value = mapToRender.InitialRotation
+      initialX.value = mapToRender.InitialX;
+      initialY.value = mapToRender.InitialY;
+      initialHorizontalSpeed.value = mapToRender.InitialHorizontalSpeed;
+      initialVerticalSpeed.value = mapToRender.InitialVerticalSpeed;
 
-      renderMap(true);
+      renderMap(mapToRender);
     }
 
     const generations = ref([]) as Ref<Array<Generation>>;
 
-    function renderMap(reset = false) {
+    function renderMap(mapToRender: Map) {
       if (graph.value === null) {
         graph.value = Echarts.init(map.value as HTMLDivElement);
       }
       graph.value?.clear();
-      const mapToRender = mapElements.find(element => element.Name === selectedMap.value) as Map;
       const surfaceArray = mapToRender.SurfaceElements.map(element => [element.X, element.Y]);
       const generationActors = generations.value?.find(g => g.GenerationNumber === selectedGeneration.value) as Generation | null;
       const chartSeries: any[] = [];
@@ -128,7 +188,7 @@ export default defineComponent({
           color: '#8d0d0d',
           width: 2
         },
-        data: surfaceArray
+        data: surfaceArray,
       });
       for (const actor of generationActors?.Actors ?? []) {
         chartSeries.push({ // Actors in generation
@@ -188,9 +248,19 @@ export default defineComponent({
     }
 
     async function requestLanding() {
+      const mapToRender = getMapToRender();
+      mapToRender.InitialVerticalSpeed = parseInt(initialVerticalSpeed.value.toString());
+      mapToRender.InitialHorizontalSpeed = parseInt(initialHorizontalSpeed.value.toString());
+      mapToRender.InitialY = parseInt(initialY.value.toString());
+      mapToRender.InitialX = parseInt(initialX.value.toString());
+      mapToRender.InitialRotation = parseInt(initialRotation.value.toString());
+      mapToRender.InitialPower = parseInt(initialPower.value.toString());
+      mapToRender.InitialFuel = parseInt(initialFuel.value.toString());
+
+      loading.value = true;
       generations.value = await marsLanderApi.Land(
           new LandRequest({
-            Map: mapElements.find(element => element.Name === selectedMap.value),
+            Map: mapToRender,
             AiWeight: new AiWeight({
               HorizontalSpeedWeight: parseFloat(horizontalSpeedWeight.value.toString()),
               RotationWeight: parseFloat(rotationWeight.value.toString()),
@@ -202,14 +272,16 @@ export default defineComponent({
               Population: parseFloat(populationRequest.value.toString()),
               Actions: parseFloat(maxActions.value.toString())
             })
-          }));
+          })).finally(() => {
+            loading.value = false;
+      });
       selectedGeneration.value = 1;
 
-      renderMap();
+      renderMap(mapToRender);
     }
 
     function onSubmitGenerationClicked() {
-      renderMap();
+      renderMap(getMapToRender());
     }
 
     return {
@@ -229,7 +301,15 @@ export default defineComponent({
       onSubmitGenerationClicked,
       generationRequest,
       populationRequest,
-      maxActions
+      maxActions,
+      initialFuel,
+      initialPower,
+      initialRotation,
+      initialX,
+      initialY,
+      initialHorizontalSpeed,
+      initialVerticalSpeed,
+      loading
     };
   }
 })
