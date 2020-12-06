@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "axios": "0.21.0",
-    "core-js": "3.8.0",
+    "core-js": "3.8.1",
     "echarts": "5.0.0",
     "gsap": "3.5.1",
     "vue": "3.0.4",
