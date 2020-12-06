@@ -34,19 +34,19 @@ namespace CodinGame.MarsLander.Models
             return clone;
         }
 
-        public void Apply(int rotation, int power)
+        public void Apply(int rotation, int power, MarsLanderEnvironment environment)
         {
             if (Status != LanderStatus.Flying) return;
             if (Situation.Fuel < power) power = Situation.Fuel;
             Situation.Power = power;
             Situation.Rotation = rotation;
             Situation.Fuel -= power;
-            Situation.HorizontalSpeed += (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation) * Situation.Power);
+            Situation.HorizontalSpeed += (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power);
             if (Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
             if (Situation.HorizontalSpeed < MarsLanderRules.MinHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MinHorizontalSpeed;
-            Situation.VerticalSpeed += (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation) * Situation.Power - MarsLanderRules.Gravity);
+            Situation.VerticalSpeed += (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power - MarsLanderRules.Gravity);
             if (Situation.VerticalSpeed > MarsLanderRules.MaxVerticalSpeed)
                 Situation.VerticalSpeed = MarsLanderRules.MaxVerticalSpeed;
             if (Situation.VerticalSpeed < MarsLanderRules.MinVerticalSpeed)
@@ -55,6 +55,7 @@ namespace CodinGame.MarsLander.Models
             Situation.Y += Situation.VerticalSpeed;
             Situations.Add(Situation.Clone());
             Actions.Add($"{rotation} {power}");
+            SetStatus(environment);
         }
 
         public string LimitMomentum()
@@ -77,6 +78,12 @@ namespace CodinGame.MarsLander.Models
             if (previousSituation == null)
             {
                 Status = LanderStatus.Flying;
+                return;
+            }
+
+            if (MarsLanderEnvironment.IsLanderLost(this))
+            {
+                Status = LanderStatus.Lost;
                 return;
             }
 

@@ -45,7 +45,9 @@ namespace CodinGame.Application.Controllers
             };
             var evolution = new MarsLanderEvolution(environment, landRequest.AiWeight);
 
-            evolution.Run(landRequest.Parameters.Generations, landRequest.Parameters.Population, 150, lander);
+            if (landRequest.Parameters.Actions != null) evolution.MaxActions = landRequest.Parameters.Actions <= 0 ? null : landRequest.Parameters.Actions;
+
+            evolution.Run(landRequest.Parameters.Generations, landRequest.Parameters.Population, lander);
 
             return evolution.Generations;
         }

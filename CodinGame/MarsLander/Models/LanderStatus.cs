@@ -4,6 +4,7 @@ namespace CodinGame.MarsLander.Models
     {
         Flying,
         Landed,
-        Crashed
+        Crashed,
+        Lost
     }
 }

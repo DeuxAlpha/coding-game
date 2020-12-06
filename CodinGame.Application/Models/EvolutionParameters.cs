@@ -4,5 +4,6 @@ namespace CodinGame.Application.Models
     {
         public int Generations { get; set; }
         public int Population { get; set; }
+        public int? Actions { get; set; }
     }
 }

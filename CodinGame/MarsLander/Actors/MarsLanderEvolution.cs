@@ -12,6 +12,7 @@ namespace CodinGame.MarsLander.Actors
         public List<MarsLanderActor> Actors { get; set; }
         public List<Generation> Generations { get; } = new List<Generation>();
         public Lander FinalLander { get; private set; }
+        public int? MaxActions { get; set; }
 
         private readonly MarsLanderEnvironment _environment;
         private readonly AiWeight _aiWeight;
@@ -32,17 +33,24 @@ namespace CodinGame.MarsLander.Actors
             }
         }
 
-        private void CreateBehavior(int actions)
+        private void CreateBehavior()
         {
             foreach (var actor in Actors)
             {
-                actor.ApplyRandomActions();
+                if (MaxActions != null)
+                {
+                    actor.ApplyActions(actor.GetRandomActions((int) MaxActions));
+                }
+                else
+                {
+                    actor.ApplyRandomActions();
+                }
             }
         }
 
         private void Evolve()
         {
-            var actorAndScoreList = Actors.Select(actor => ScoreActor(actor, _environment)).OrderByDescending(actor => actor.Score).ToList();
+            var actorAndScoreList = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).ToList();
 
             Generations.Add(new Generation
             {
@@ -64,23 +72,50 @@ namespace CodinGame.MarsLander.Actors
                 var moreActorActionCount = firstActor.Lander.Actions.Count > secondActor.Lander.Actions.Count
                     ? firstActor.Lander.Actions.Count
                     : secondActor.Lander.Actions.Count;
-                for (var actionIndex = 0; actionIndex < moreActorActionCount; actionIndex++)
+                // TODO: Move this to a method
+                if (MaxActions == null)
                 {
-                    var action =
-                        Randomizer.Gamble(
-                            mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
-                        puppet.GetRandomActions(1).First() :
-                        Randomizer
-                            .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                        firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First() :
-                        secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First();
-                    puppet.ApplyAction(action);
-                    actions.Add(action);
-                }
+                    for (var actionIndex = 0; actionIndex < moreActorActionCount; actionIndex++)
+                    {
+                        var action =
+                            Randomizer.Gamble(
+                                mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
+                            puppet.GetRandomActions(1).First() :
+                            Randomizer
+                                .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
+                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First() :
+                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First();
+                        puppet.ApplyAction(action);
+                        actions.Add(action);
+                    }
 
-                while (puppet.Lander.Status == LanderStatus.Flying)
+                    while (puppet.Lander.Status == LanderStatus.Flying)
+                    {
+                        var randomAction = puppet.GetRandomActions(1).First();
+                        puppet.ApplyAction(randomAction);
+                    }
+                }
+                else
                 {
-                    puppet.ApplyRandomActions();
+                    for (var actionIndex = 0; actionIndex < moreActorActionCount && actionIndex < MaxActions; actionIndex++)
+                    {
+                        var action =
+                            Randomizer.Gamble(
+                                mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
+                            puppet.GetRandomActions(1).First() :
+                            Randomizer
+                                .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
+                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First() :
+                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First();
+                        puppet.ApplyAction(action);
+                        actions.Add(action);
+                    }
+
+                    while (puppet.Lander.Status == LanderStatus.Flying && actions.Count < MaxActions)
+                    {
+                        var randomAction = puppet.GetRandomActions(1).First();
+                        puppet.ApplyAction(randomAction);
+                    }
                 }
 
                 // Basically creating an entirely new actor.
@@ -105,6 +140,7 @@ namespace CodinGame.MarsLander.Actors
             var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
             var rotation = actor.Lander.Situation.Rotation;
             var distanceFromFlatSurface = environment.GetDistanceFromFlatSurfaceCenter(actor.Lander);
+            var distanceFromFlatSurfaceCenter = environment.GetDistanceFromFlatSurfaceCenter(actor.Lander);
             return new GenerationActor
             {
                 Lander = actor.Lander.Clone(),
@@ -112,21 +148,22 @@ namespace CodinGame.MarsLander.Actors
                     Math.Abs(horizontalSpeed) * _aiWeight.HorizontalSpeedWeight +
                     Math.Abs(verticalSpeed) * _aiWeight.VerticalSpeedWeight +
                     Math.Abs(rotation) * _aiWeight.RotationWeight +
-                    Math.Abs(distanceFromFlatSurface.FullDistance) * _aiWeight.VerticalDistanceWeight
+                    Math.Abs(distanceFromFlatSurface.FullDistance) * _aiWeight.VerticalDistanceWeight +
+                    Math.Abs(distanceFromFlatSurfaceCenter.VerticalDistance) * _aiWeight.VerticalDistanceToCenterWeight
             };
         }
 
-        public void Run(int generations, int population, int actions, Lander original)
+        public void Run(int generations, int population, Lander original)
         {
             GenerateActors(population, original);
-            CreateBehavior(actions);
+            CreateBehavior();
 
             for (var i = 0; i < generations; i++)
             {
                 Evolve();
             }
 
-            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment)).OrderByDescending(actor => actor.Score).First();
+            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).First();
 
             FinalLander = finalActorAndScore.Lander;
             Logger.Log("Final Score", finalActorAndScore.Score);

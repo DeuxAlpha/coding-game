@@ -33,6 +33,10 @@
             <label class="w-56" for="vertical-distance-weight">Vertical Distance Weight</label>
             <input type="number" class="w-14 border border-gray-500" id="vertical-distance-weight" v-model="verticalDistanceWeight">
           </div>
+          <div class="flex flex-row">
+            <label class="w-56" for="vertical-center-distance-weight">Vertical Center Distance Weight</label>
+            <input type="number" class="w-14 border border-gray-500" id="vertical-center-distance-weight" v-model="verticalCenterDistanceWeight">
+          </div>
         </div>
         <div class="w-1/3">
           <div class="flex flex-row">
@@ -42,6 +46,10 @@
           <div class="flex flex-row">
             <label class="w-56" for="population-request">Population</label>
             <input type="number" class="w-14 border border-gray-500" id="population-request" v-model="populationRequest">
+          </div>
+          <div class="flex flex-row">
+            <label class="w-56" for="max-actions">Max Actions</label>
+            <input type="number" class="w-14 border border-gray-500" id="max-actions" v-model="maxActions">
           </div>
         </div>
       </div>
@@ -82,8 +90,10 @@ export default defineComponent({
     const verticalSpeedWeight = ref(1);
     const rotationWeight = ref(1);
     const verticalDistanceWeight = ref(1);
+    const verticalCenterDistanceWeight = ref(1);
     const generationRequest = ref(100);
     const populationRequest = ref(100);
+    const maxActions = ref(-1);
     const expandParams = ref(false);
 
     const marsLanderApi = new MarsLanderApi();
@@ -106,8 +116,7 @@ export default defineComponent({
       if (graph.value === null) {
         graph.value = Echarts.init(map.value as HTMLDivElement);
       }
-      if (reset)
-        graph.value?.clear();
+      graph.value?.clear();
       const mapToRender = mapElements.find(element => element.Name === selectedMap.value) as Map;
       const surfaceArray = mapToRender.SurfaceElements.map(element => [element.X, element.Y]);
       const generationActors = generations.value?.find(g => g.GenerationNumber === selectedGeneration.value) as Generation | null;
@@ -171,7 +180,7 @@ export default defineComponent({
         tooltip: {
           trigger: 'item'
         },
-        series: chartSeries
+        series: chartSeries,
       } as Echarts.EChartsOption;
       console.dir(chartOptions);
       graph.value.setOption(chartOptions);
@@ -191,6 +200,7 @@ export default defineComponent({
             Parameters: new EvolutionParameters({
               Generations: parseFloat(generationRequest.value.toString()),
               Population: parseFloat(populationRequest.value.toString()),
+              Actions: parseFloat(maxActions.value.toString())
             })
           }));
       selectedGeneration.value = 1;
@@ -210,6 +220,7 @@ export default defineComponent({
       requestLanding,
       selectedGeneration,
       horizontalSpeedWeight,
+      verticalCenterDistanceWeight,
       verticalSpeedWeight,
       rotationWeight,
       verticalDistanceWeight,
@@ -217,7 +228,8 @@ export default defineComponent({
       generations,
       onSubmitGenerationClicked,
       generationRequest,
-      populationRequest
+      populationRequest,
+      maxActions
     };
   }
 })
@@ -225,8 +237,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 #map {
-  width: 1200px;
-  height: 720px;
+  width: 1400px;
+  height: 820px;
 }
 
 .v-enter-active, .v-leave-active {

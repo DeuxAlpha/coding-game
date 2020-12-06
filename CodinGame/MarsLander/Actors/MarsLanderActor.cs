@@ -29,14 +29,14 @@ namespace CodinGame.MarsLander.Actors
             foreach (var actionArray in actions.Select(action => action.Split(" ")))
             {
                 if (Lander.Status != LanderStatus.Flying) continue;
-                Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
+                Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]), _environment);
             }
         }
 
         public void ApplyAction(string action)
         {
             var actionArray = action.Split(" ");
-            Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]));
+            Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]), _environment);
         }
 
         public void ApplyRandomActions()
@@ -55,7 +55,7 @@ namespace CodinGame.MarsLander.Actors
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                Lander.Apply(randomAngle, randomPower);
+                Lander.Apply(randomAngle, randomPower, _environment);
             }
         }
 
@@ -77,13 +77,13 @@ namespace CodinGame.MarsLander.Actors
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                puppet.Apply(randomAngle, randomPower);
+                 puppet.Apply(randomAngle, randomPower, _environment);
             }
 
             return puppet.Actions;
         }
 
-        public static IEnumerable<string> GetRandomActions(Lander lander, int actions)
+        public static IEnumerable<string> GetRandomActions(Lander lander, int actions, MarsLanderEnvironment environment)
         {
             var puppet = lander.Clone();
 
@@ -101,13 +101,13 @@ namespace CodinGame.MarsLander.Actors
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                puppet.Apply(randomAngle, randomPower);
+                puppet.Apply(randomAngle, randomPower, environment);
             }
 
             return puppet.Actions;
         }
 
-        public IEnumerable<string> GetRandomActions()
+        public IEnumerable<string> GetRandomActions(MarsLanderEnvironment environment)
         {
             var puppet = Lander.Clone();
 
@@ -125,13 +125,13 @@ namespace CodinGame.MarsLander.Actors
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                puppet.Apply(randomAngle, randomPower);
+                puppet.Apply(randomAngle, randomPower, environment);
             }
 
             return puppet.Actions;
         }
 
-        public static IEnumerable<string> GetRandomActions(Lander lander)
+        public static IEnumerable<string> GetRandomActions(Lander lander, MarsLanderEnvironment environment)
         {
             var puppet = lander.Clone();
 
@@ -149,7 +149,7 @@ namespace CodinGame.MarsLander.Actors
                 if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
                 var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
 
-                puppet.Apply(randomAngle, randomPower);
+                puppet.Apply(randomAngle, randomPower, environment);
             }
 
             return puppet.Actions;

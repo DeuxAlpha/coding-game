@@ -63,7 +63,7 @@ namespace CodinGame.MarsLander
                 }
 
                 if (evolution.FinalLander == null || !evolution.FinalLander.Actions.Any())
-                    evolution.Run(40, 100, 4, Lander);
+                    evolution.Run(40, 100, Lander);
 
                 // rotate power. rotate is the desired rotation angle. power is the desired thrust power.
                 Actions.Commit(evolution.FinalLander.Actions.First());

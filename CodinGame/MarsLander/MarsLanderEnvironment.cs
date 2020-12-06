@@ -33,6 +33,13 @@ namespace CodinGame.MarsLander
             return (int) Math.Round(lander.Situation.Y - surfaceYPosition);
         }
 
+        /// <summary>Checks if lander is moving outside of map.</summary>
+        public static bool IsLanderLost(Lander lander)
+        {
+            return lander.Situation.X < 0 || lander.Situation.X > MarsLanderRules.Width ||
+                   lander.Situation.Y < 0 || lander.Situation.Y > MarsLanderRules.Height;
+        }
+
         public Distance GetDistanceFromFlatSurfaceCenter(Lander lander)
         {
             for (var i = 0; i < _surfaceList.Count; i++)
@@ -40,12 +47,12 @@ namespace CodinGame.MarsLander
                 var leftSurface = _surfaceList[i];
                 var rightSurface = _surfaceList[i + 1];
                 if (leftSurface.Y != rightSurface.Y) continue;
-                var centerX = rightSurface.X - leftSurface.X;
+                var centerX = (leftSurface.X + rightSurface.X) / 2;
 
                 return new Distance
                 {
-                    HorizontalDistance = lander.Situation.X - centerX,
-                    VerticalDistance = lander.Situation.Y - lander.Situation.Y,
+                    HorizontalDistance = Math.Abs(lander.Situation.X - centerX),
+                    VerticalDistance = Math.Abs(lander.Situation.Y - leftSurface.Y),
                     FullDistance = Trigonometry.GetDistance(centerX, leftSurface.Y, lander.Situation.X, lander.Situation.Y)
                 };
             }

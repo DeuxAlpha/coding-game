@@ -33,14 +33,14 @@ namespace CodinGame.Utilities.Maths
             return Math.Round(yLength / Math.Tan(ToRadians(angle)), decimals);
         }
 
-        public static double GetHorizontalSpeedFraction(double angle, int decimals = 3)
+        public static double GetHorizontalSpeedFraction(double angle, ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right, int decimals = 3)
         {
-            return Math.Round(Math.Cos(ToRadians(angle)), decimals);
+            return Math.Round(Math.Cos(ToRadians(angle + GetAdjustedAngle(zeroDegreesDirection))), decimals);
         }
 
-        public static double GetVerticalSpeedFraction(double angle, int decimals = 3)
+        public static double GetVerticalSpeedFraction(double angle, ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right, int decimals = 3)
         {
-            return Math.Round(Math.Sin(ToRadians(angle)), decimals);
+            return Math.Round(Math.Sin(ToRadians(angle + GetAdjustedAngle(zeroDegreesDirection))), decimals);
         }
 
         public static double ToRadians(double angle)
@@ -51,6 +51,18 @@ namespace CodinGame.Utilities.Maths
         public static double ToDegrees(double radians)
         {
             return 180 / Math.PI * radians;
+        }
+
+        private static int GetAdjustedAngle(ZeroDegreesDirection zeroDegreesDirection)
+        {
+            return zeroDegreesDirection switch
+            {
+                ZeroDegreesDirection.Top => 90,
+                ZeroDegreesDirection.Left => 180,
+                ZeroDegreesDirection.Bottom => 270,
+                ZeroDegreesDirection.Right => 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(zeroDegreesDirection), zeroDegreesDirection, null)
+            };
         }
     }
 }
