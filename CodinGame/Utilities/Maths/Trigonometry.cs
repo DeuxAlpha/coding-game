@@ -2,7 +2,7 @@ using System;
 
 namespace CodinGame.Utilities.Maths
 {
-    public static class Trigonometry
+    public static partial class Trigonometry
     {
         public static double GetDistance(double x1, double y1, double x2, double y2)
         {
@@ -21,7 +21,25 @@ namespace CodinGame.Utilities.Maths
             return angle;
         }
 
-        // TODO: Find a way to calculate applied force to reach a destination with a specific speed.
+        /// <summary>Calculates the intersection of a line and a horizontal line at an arbitrary y-level.</summary>
+        public static double GetXIntercept(double x1, double y1, double x2, double y2, double yLevel)
+        {
+            var adjustedY1 = y1 - yLevel;
+            var adjustedY2 = y2 - yLevel;
+            var aboveInterceptTravelPercentage = Math.Abs(adjustedY2) / (Math.Abs(adjustedY2) + Math.Abs(adjustedY1));
+            var xIntercept = x1 + (x2 - x1) * aboveInterceptTravelPercentage;
+            return xIntercept;
+        }
+
+        /// <summary>Calculates the intersection of a line and a vertical line at an arbitrary x-level.</summary>
+        public static double GetYIntercept(double x1, double y1, double x2, double y2, double xLevel)
+        {
+            var adjustedX1 = x1 - xLevel;
+            var adjustedX2 = x2 - xLevel;
+            var aboveInterceptTravelPercentage = Math.Abs(adjustedX2) / (Math.Abs(adjustedX2) + Math.Abs(adjustedX1));
+            var yIntercept = y1 + (y2 - y1) * aboveInterceptTravelPercentage;
+            return yIntercept;
+        }
 
         /// <summary>Basically, where on a Y-Axis you would end up if you moved the X distance at a particular angle.</summary>
         public static double GetNewYPosition(double angle, double xLength, int decimals = 3)
