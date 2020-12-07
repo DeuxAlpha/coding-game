@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
+using CodinGame.MarsLander.TimeCheat;
 using CodinGame.Utilities.Random;
 
 namespace CodinGame.MarsLander.Actors
@@ -39,117 +40,42 @@ namespace CodinGame.MarsLander.Actors
             Lander.Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]), _environment);
         }
 
-        public void ApplyRandomActions()
+        public void ApplyFullRangeRandomActions(RandomNessProvider randomNessProvider)
         {
             while (Lander.Status == LanderStatus.Flying)
             {
-                var maxNewAngle = Lander.Situation.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = Lander.Situation.Rotation - MarsLanderRules.MaxAngleChange;
-                if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
-                if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
-                var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
-
-                var maxNewPower = Lander.Situation.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = Lander.Situation.Power - MarsLanderRules.MaxPowerChange;
-                if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
-                if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
-                var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
+                var randomAngle = randomNessProvider.GetRandomAngle();
+                var randomPower = randomNessProvider.GetRandomPower();
 
                 Lander.Apply(randomAngle, randomPower, _environment);
             }
         }
 
-        public IEnumerable<string> GetRandomActions(int actions)
+        public IEnumerable<string> GetRandomActions(int actions, RandomNessProvider randomNessProvider)
         {
             var puppet = Lander.Clone();
 
             for (var i = 0; i < actions; i++)
             {
-                var maxNewAngle = puppet.Situation.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = puppet.Situation.Rotation - MarsLanderRules.MaxAngleChange;
-                if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
-                if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
-                var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
-
-                var maxNewPower = puppet.Situation.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = puppet.Situation.Power - MarsLanderRules.MaxPowerChange;
-                if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
-                if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
-                var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
-
+                var randomAngle = randomNessProvider.GetRandomAngle();
+                var randomPower = randomNessProvider.GetRandomPower();
                  puppet.Apply(randomAngle, randomPower, _environment);
             }
 
             return puppet.Actions;
         }
 
-        public static IEnumerable<string> GetRandomActions(Lander lander, int actions, MarsLanderEnvironment environment)
-        {
-            var puppet = lander.Clone();
 
-            for (var i = 0; i < actions; i++)
-            {
-                var maxNewAngle = puppet.Situation.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = puppet.Situation.Rotation - MarsLanderRules.MaxAngleChange;
-                if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
-                if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
-                var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
-
-                var maxNewPower = puppet.Situation.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = puppet.Situation.Power - MarsLanderRules.MaxPowerChange;
-                if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
-                if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
-                var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
-
-                puppet.Apply(randomAngle, randomPower, environment);
-            }
-
-            return puppet.Actions;
-        }
-
-        public IEnumerable<string> GetRandomActions(MarsLanderEnvironment environment)
+        public IEnumerable<string> GetRandomActions(RandomNessProvider randomNessProvider)
         {
             var puppet = Lander.Clone();
 
             while (puppet.Status == LanderStatus.Flying)
             {
-                var maxNewAngle = puppet.Situation.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = puppet.Situation.Rotation - MarsLanderRules.MaxAngleChange;
-                if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
-                if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
-                var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
+                var randomAngle = randomNessProvider.GetRandomAngle();
+                var randomPower = randomNessProvider.GetRandomPower();
 
-                var maxNewPower = puppet.Situation.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = puppet.Situation.Power - MarsLanderRules.MaxPowerChange;
-                if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
-                if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
-                var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
-
-                puppet.Apply(randomAngle, randomPower, environment);
-            }
-
-            return puppet.Actions;
-        }
-
-        public static IEnumerable<string> GetRandomActions(Lander lander, MarsLanderEnvironment environment)
-        {
-            var puppet = lander.Clone();
-
-            while (puppet.Status == LanderStatus.Flying)
-            {
-                var maxNewAngle = puppet.Situation.Rotation + MarsLanderRules.MaxAngleChange;
-                var minNewAngle = puppet.Situation.Rotation - MarsLanderRules.MaxAngleChange;
-                if (maxNewAngle > MarsLanderRules.MaxAngle) maxNewAngle = MarsLanderRules.MaxAngle;
-                if (minNewAngle < MarsLanderRules.MinAngle) minNewAngle = MarsLanderRules.MinAngle;
-                var randomAngle = Randomizer.GetValueBetween(minNewAngle, maxNewAngle);
-
-                var maxNewPower = puppet.Situation.Power + MarsLanderRules.MaxPowerChange;
-                var minNewPower = puppet.Situation.Power - MarsLanderRules.MaxPowerChange;
-                if (maxNewPower > MarsLanderRules.MaxPower) maxNewPower = MarsLanderRules.MaxPower;
-                if (minNewPower < MarsLanderRules.MinPower) minNewPower = MarsLanderRules.MinPower;
-                var randomPower = Randomizer.GetValueBetween(minNewPower, maxNewPower);
-
-                puppet.Apply(randomAngle, randomPower, environment);
+                puppet.Apply(randomAngle, randomPower, _environment);
             }
 
             return puppet.Actions;

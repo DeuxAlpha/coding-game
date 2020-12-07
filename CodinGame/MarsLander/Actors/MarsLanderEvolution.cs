@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
+using CodinGame.MarsLander.TimeCheat;
 using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Random;
 
@@ -16,6 +17,7 @@ namespace CodinGame.MarsLander.Actors
 
         private readonly MarsLanderEnvironment _environment;
         private readonly AiWeight _aiWeight;
+        private readonly RandomNessProvider _randomNessProvider = new RandomNessProvider();
 
         public MarsLanderEvolution(MarsLanderEnvironment environment, AiWeight aiWeight)
         {
@@ -39,11 +41,12 @@ namespace CodinGame.MarsLander.Actors
             {
                 if (MaxActions != null)
                 {
-                    actor.ApplyActions(actor.GetRandomActions((int) MaxActions));
+                    actor.ApplyActions(actor.GetRandomActions((int) MaxActions, _randomNessProvider));
                 }
                 else
                 {
-                    actor.ApplyRandomActions();
+                    actor.ApplyFullRangeRandomActions(_randomNessProvider);
+                    // actor.ApplyRandomActions();
                 }
             }
         }
@@ -58,9 +61,9 @@ namespace CodinGame.MarsLander.Actors
                 GenerationNumber = Generations.Count + 1
             });
 
-            const double betterBias = 0.8; // How likely it is that a better actor is used than a worse one.
-            const double betterCutoff = 0.2; // Percentage of what are considered good actors vs bad ones.
-            const double mutationChance = 0.01;
+            var betterBias = _aiWeight.BetterBias; // How likely it is that a better actor is used than a worse one.
+            var betterCutoff = _aiWeight.BetterCutoff; // Percentage of what are considered good actors vs bad ones.
+            var mutationChance = _aiWeight.MutationChance;
             var betterBiasCount = (int) Math.Round(Actors.Count * betterCutoff);
 
             foreach (var actor in Actors)
@@ -80,19 +83,24 @@ namespace CodinGame.MarsLander.Actors
                         var action =
                             Randomizer.Gamble(
                                 mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
-                            puppet.GetRandomActions(1).First() :
+                            puppet.GetRandomActions(1, _randomNessProvider).First() :
                             Randomizer
                                 .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First() :
-                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First();
+                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First() :
+                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First();
                         puppet.ApplyAction(action);
                         actions.Add(action);
-                    }
+                        if (puppet.Lander.WillHitLandingZone(_environment, 1))
+                        {
+                            puppet.ApplyAction("0 0");
+                            actions.Add(action);
+                        }
 
-                    while (puppet.Lander.Status == LanderStatus.Flying)
-                    {
-                        var randomAction = puppet.GetRandomActions(1).First();
-                        puppet.ApplyAction(randomAction);
+                        // Basically creating an entirely new actor.
+                        actor.Reset();
+                        actor.ApplyActions(actions); // Acting to get score for next evolution
+                        if (actor.Lander.Status == LanderStatus.Flying)
+                            actor.ApplyFullRangeRandomActions(_randomNessProvider);
                     }
                 }
                 else
@@ -102,25 +110,23 @@ namespace CodinGame.MarsLander.Actors
                         var action =
                             Randomizer.Gamble(
                                 mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
-                            puppet.GetRandomActions(1).First() :
+                            puppet.GetRandomActions(1, _randomNessProvider).First() :
                             Randomizer
                                 .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First() :
-                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1).First();
+                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First() :
+                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First();
                         puppet.ApplyAction(action);
                         actions.Add(action);
-                    }
+                        if (puppet.Lander.WillHitLandingZone(_environment, 1))
+                        {
+                            puppet.ApplyAction("0 0");
+                            actions.Add(action);
+                        }
 
-                    while (puppet.Lander.Status == LanderStatus.Flying && actions.Count < MaxActions)
-                    {
-                        var randomAction = puppet.GetRandomActions(1).First();
-                        puppet.ApplyAction(randomAction);
+                        actor.Reset();
+                        actor.ApplyActions(actions);
                     }
                 }
-
-                // Basically creating an entirely new actor.
-                actor.Reset();
-                actor.ApplyActions(actions); // Acting to get score for next evolution
             }
         }
 
@@ -148,8 +154,7 @@ namespace CodinGame.MarsLander.Actors
                     Math.Abs(horizontalSpeed) * _aiWeight.HorizontalSpeedWeight +
                     Math.Abs(verticalSpeed) * _aiWeight.VerticalSpeedWeight +
                     Math.Abs(rotation) * _aiWeight.RotationWeight +
-                    Math.Abs(distanceFromFlatSurface.FullDistance) * _aiWeight.VerticalDistanceWeight +
-                    Math.Abs(distanceFromFlatSurfaceCenter.VerticalDistance) * _aiWeight.VerticalDistanceToCenterWeight
+                    Math.Abs(distanceFromFlatSurfaceCenter.HorizontalDistance) * _aiWeight.HorizontalCenterDistanceWeight
             };
         }
 

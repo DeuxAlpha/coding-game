@@ -21,6 +21,8 @@ namespace CodinGame.Utilities.Maths
             return angle;
         }
 
+        // TODO: Find a way to calculate applied force to reach a destination with a specific speed.
+
         /// <summary>Basically, where on a Y-Axis you would end up if you moved the X distance at a particular angle.</summary>
         public static double GetNewYPosition(double angle, double xLength, int decimals = 3)
         {

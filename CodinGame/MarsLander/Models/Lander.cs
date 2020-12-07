@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.Utilities.Game;
@@ -38,15 +39,19 @@ namespace CodinGame.MarsLander.Models
         {
             if (Status != LanderStatus.Flying) return;
             if (Situation.Fuel < power) power = Situation.Fuel;
-            Situation.Power = power;
-            Situation.Rotation = rotation;
+            Situation.Power = LimitPower(power);
+            Situation.Rotation = LimitRotation(rotation);
             Situation.Fuel -= power;
-            Situation.HorizontalSpeed += (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power);
+            Situation.HorizontalSpeed +=
+                (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) *
+                       Situation.Power);
             if (Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
             if (Situation.HorizontalSpeed < MarsLanderRules.MinHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MinHorizontalSpeed;
-            Situation.VerticalSpeed += (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power - MarsLanderRules.Gravity);
+            Situation.VerticalSpeed +=
+                (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) *
+                    Situation.Power - MarsLanderRules.Gravity);
             if (Situation.VerticalSpeed > MarsLanderRules.MaxVerticalSpeed)
                 Situation.VerticalSpeed = MarsLanderRules.MaxVerticalSpeed;
             if (Situation.VerticalSpeed < MarsLanderRules.MinVerticalSpeed)
@@ -54,16 +59,34 @@ namespace CodinGame.MarsLander.Models
             Situation.X += Situation.HorizontalSpeed;
             Situation.Y += Situation.VerticalSpeed;
             Situations.Add(Situation.Clone());
-            Actions.Add($"{rotation} {power}");
+            Actions.Add($"{Situation.Rotation} {Situation.Power}");
             SetStatus(environment);
         }
+
+        public bool WillHitLandingZone(MarsLanderEnvironment environment, int withinTheseTurns = 5)
+        {
+            var landingZone = environment.GetLandingZone().ToList();
+            var puppet = Clone();
+            var turns = 0;
+            while (puppet.Status == LanderStatus.Flying && turns < withinTheseTurns)
+            {
+                puppet.Apply(0, 0, environment);
+                turns += 1;
+            }
+
+            if (puppet.Status == LanderStatus.Flying) return false;
+            return puppet.Situation.X > landingZone.ElementAt(0).X && puppet.Situation.X < landingZone.ElementAt(1).X;
+        }
+
 
         public string LimitMomentum()
         {
             var puppet = Clone();
-            var currentAngle = Trigonometry.GetAngle(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
+            var currentAngle = Trigonometry.GetAngle(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed,
+                Situation.Y + Situation.VerticalSpeed);
             var oppositeAngle = currentAngle - 270; // Right is -90 in game, Left is 90
-            var currentSpeed = Trigonometry.GetDistance(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
+            var currentSpeed = Trigonometry.GetDistance(Situation.X, Situation.Y,
+                Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
             var speed = 0;
             if (oppositeAngle >= 0 && Situation.Rotation >= 0 || oppositeAngle <= 0 && Situation.Rotation <= 0)
                 speed = 4;
@@ -102,14 +125,38 @@ namespace CodinGame.MarsLander.Models
             }
 
             if (Situation.Rotation > MarsLanderRules.MaxLandingAngle ||
-                Situation.VerticalSpeed > MarsLanderRules.MaxVerticalLandingSpeed ||
-                Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalLandingSpeed)
+                Math.Abs(Situation.VerticalSpeed) > MarsLanderRules.MaxVerticalLandingSpeed ||
+                Math.Abs(Situation.HorizontalSpeed) > MarsLanderRules.MaxHorizontalLandingSpeed)
             {
                 Status = LanderStatus.Crashed;
                 return;
             }
 
             Status = LanderStatus.Landed;
+        }
+
+        private int LimitPower(int power)
+        {
+            var powerDifference = power - Situation.Power;
+            if (Math.Abs(powerDifference) > MarsLanderRules.MaxPowerChange)
+                powerDifference = powerDifference > 0 ? MarsLanderRules.MaxPowerChange : -MarsLanderRules.MaxPowerChange;
+            if (Situation.Power + powerDifference > MarsLanderRules.MaxPower)
+                powerDifference = Situation.Power - MarsLanderRules.MaxPower;
+            if (Situation.Power + powerDifference < MarsLanderRules.MinPower)
+                powerDifference = MarsLanderRules.MinPower - Situation.Power;
+            return Situation.Power + powerDifference;
+        }
+
+        private int LimitRotation(int rotation)
+        {
+            var rotationDifference = rotation - Situation.Rotation;
+            if (Math.Abs(rotationDifference) > MarsLanderRules.MaxAngleChange)
+                rotationDifference = rotationDifference > 0 ? MarsLanderRules.MaxAngleChange : -MarsLanderRules.MaxAngleChange;
+            if (Situation.Rotation + rotationDifference > MarsLanderRules.MaxAngle)
+                rotationDifference = Situation.Rotation - MarsLanderRules.MaxAngle;
+            if (Situation.Rotation + rotationDifference < MarsLanderRules.MinAngle)
+                rotationDifference = MarsLanderRules.MinAngle - Situation.Rotation;
+            return Situation.Rotation + rotationDifference;
         }
     }
 }

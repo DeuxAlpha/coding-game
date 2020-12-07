@@ -1,6 +1,6 @@
 export enum LanderStatus {
   Flying,
-  Landing,
+  Landed,
   Crashed,
   Lost
 }

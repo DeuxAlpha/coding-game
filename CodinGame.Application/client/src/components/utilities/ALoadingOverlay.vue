@@ -5,7 +5,7 @@
         <h1 class="font-bold text-blue-400 text-4xl">Loading...</h1>
       </slot>
     </div>
-    <div class="content" :class="OverlayVisible">
+    <div class="content" :class="overlayVisible">
       <slot/>
     </div>
   </div>
@@ -32,9 +32,6 @@ export default defineComponent({
     }
   }
 })
-  // get OverlayVisible(): string {
-  //   return this.overlay ? 'show' : '';
-  // }
 </script>
 
 <style scoped lang="scss">
