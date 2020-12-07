@@ -22,7 +22,7 @@ namespace CodinGame.Utilities.Maths
         }
 
         /// <summary>Calculates the intersection of a line and a horizontal line at an arbitrary y-level.</summary>
-        public static double GetXIntercept(double x1, double y1, double x2, double y2, double yLevel)
+        public static double GetXIntersect(double x1, double y1, double x2, double y2, double yLevel)
         {
             var adjustedY1 = y1 - yLevel;
             var adjustedY2 = y2 - yLevel;
@@ -32,7 +32,7 @@ namespace CodinGame.Utilities.Maths
         }
 
         /// <summary>Calculates the intersection of a line and a vertical line at an arbitrary x-level.</summary>
-        public static double GetYIntercept(double x1, double y1, double x2, double y2, double xLevel)
+        public static double GetYIntersect(double x1, double y1, double x2, double y2, double xLevel)
         {
             var adjustedX1 = x1 - xLevel;
             var adjustedX2 = x2 - xLevel;

@@ -18,7 +18,7 @@ namespace CodinGame.Tests.Maths
             double yLevel,
             double expectedResult)
         {
-            Assert.That(Trigonometry.GetXIntercept(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
+            Assert.That(Trigonometry.GetXIntersect(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace CodinGame.Tests.Maths
             double yLevel,
             double expectedResult)
         {
-            Assert.That(Trigonometry.GetYIntercept(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
+            Assert.That(Trigonometry.GetYIntersect(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
         }
     }
 }
