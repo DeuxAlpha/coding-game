@@ -37,6 +37,8 @@ namespace CodinGame.Application.Controllers
             return Ok(GetBestLanding(landRequest));
         }
 
+        // TODO: Add action to calculate weights automatically.
+
         private List<Generation> GetBestLanding(LandRequest landRequest)
         {
             var environment = new MarsLanderEnvironment(landRequest.Map.SurfaceElements.ToList());
