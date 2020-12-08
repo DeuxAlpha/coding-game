@@ -41,7 +41,7 @@ namespace CodinGame.Application.Controllers
 
         private List<Generation> GetBestLanding(LandRequest landRequest)
         {
-            var environment = new MarsLanderEnvironment(landRequest.Map.SurfaceElements.ToList());
+            var environment = new MarsLanderEnvironment(landRequest.Map.SurfaceZones.ToList());
             var lander = new Lander
             {
                 Situation = new Situation

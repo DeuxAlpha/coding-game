@@ -21,7 +21,7 @@ namespace CodinGame.MarsLander
             string[] inputs;
             var surfaceN =
                 int.Parse(Console.ReadLine() ?? ""); // the number of points used to draw the surface of Mars.
-            var surfaceList = new List<SurfaceElement>();
+            var surfaceList = new List<SurfaceZone>();
             for (var i = 0; i < surfaceN; i++)
             {
                 inputs = Console.ReadLine()?.Split(' ') ?? new string[] { };
@@ -29,11 +29,12 @@ namespace CodinGame.MarsLander
                 var
                     landY = int.Parse(
                         inputs[1]); // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
-                surfaceList.Add(new SurfaceElement
-                {
-                    X = landX,
-                    Y = landY
-                });
+                // surfaceList.Add(new SurfaceZone
+                // {
+                    // LeftX = landX,
+                    // LeftY = landY
+                // });
+                throw new NotImplementedException("Need to implement new Surface Zones.");
             }
 
             _environment = new MarsLanderEnvironment(surfaceList);

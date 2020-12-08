@@ -212,7 +212,8 @@ export default defineComponent({
         graph.value = Echarts.init(map.value as HTMLDivElement);
       }
       graph.value?.clear();
-      const surfaceArray = mapToRender.SurfaceElements.map(element => [element.X, element.Y]);
+      const surfaceArray = mapToRender.SurfaceZones.map(element => [element.LeftX, element.LeftY]);
+      surfaceArray.push([mapToRender.SurfaceZones])
       const generationActors = generations.value?.find(g => g.GenerationNumber === selectedGeneration.value) as Generation | null;
       const chartSeries: any[] = [];
       chartSeries.push({ // Surface
@@ -380,8 +381,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 #map {
-  width: 1400px;
-  height: 820px;
+  width: 100vw;
+  height: 90vh;
 }
 
 .v-enter-active, .v-leave-active {

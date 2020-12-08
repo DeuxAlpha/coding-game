@@ -13,8 +13,8 @@ namespace CodinGame.MarsLander.Models
         public List<Situation> Situations { get; set; } = new List<Situation>();
         public List<string> Actions { get; private set; } = new List<string>();
         public LanderStatus Status { get; private set; }
-        private SurfaceElement _leftCurrentSurface;
-        private SurfaceElement _rightCurrentSurface;
+        private SurfaceZone _leftCurrentSurface;
+        private SurfaceZone _rightCurrentSurface;
 
         public Lander Clone()
         {
@@ -78,7 +78,7 @@ namespace CodinGame.MarsLander.Models
             }
 
             if (puppet.Status == LanderStatus.Flying) return false;
-            return puppet.Situation.X > landingZone.ElementAt(0).X && puppet.Situation.X < landingZone.ElementAt(1).X;
+            return puppet.Situation.X > landingZone.ElementAt(0).LeftX && puppet.Situation.X < landingZone.ElementAt(1).LeftX;
         }
 
 
@@ -145,7 +145,7 @@ namespace CodinGame.MarsLander.Models
         private void UpdateSurfaces(MarsLanderEnvironment environment)
         {
             // Check if we even need to update the surfaces.
-            if (_leftCurrentSurface?.X < Situation.X && _rightCurrentSurface?.X > Situation.X) return;
+            if (_leftCurrentSurface?.LeftX < Situation.X && _rightCurrentSurface?.LeftX > Situation.X) return;
             // We might think that we just move left or right to the next surface elements, but there's a chance that
             // the lander skipped several zones at once, so we need to analyze the entire zone again.
             _leftCurrentSurface = environment.GetLeftCurrentSurface(this);

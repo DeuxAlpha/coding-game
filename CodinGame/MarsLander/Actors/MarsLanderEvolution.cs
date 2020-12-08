@@ -142,6 +142,11 @@ namespace CodinGame.MarsLander.Actors
 
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
+            if (actor.Lander.Status == LanderStatus.Landed) return new GenerationActor
+            {
+                Lander = actor.Lander.Clone(),
+                Score = 0
+            };
             var horizontalSpeed = actor.Lander.Situation.HorizontalSpeed;
             var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
             var rotation = actor.Lander.Situation.Rotation;

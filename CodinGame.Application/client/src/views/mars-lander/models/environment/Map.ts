@@ -1,8 +1,8 @@
-import {MapElement} from "@/views/mars-lander/models/environment/MapElement";
+import {SurfaceZone} from "@/views/mars-lander/models/environment/SurfaceZone";
 
 export class Map {
   public Name!: string;
-  public SurfaceElements!: MapElement[];
+  public SurfaceZones!: SurfaceZone[];
   public InitialX!: number;
   public InitialY!: number;
   public InitialHorizontalSpeed!: number;
