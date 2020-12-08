@@ -31,14 +31,53 @@ namespace CodinGame.Utilities.Maths
                 var freeFallInformation = GetFreeFallInformation(currentObject, request);
                 if (freeFallInformation.FinalXOffset > 0)
                 {
-                    // Burn against movement.
-
+                    // Burn towards right.
+                    var rotation = currentObject.State.Rotation + request.MaxRotationChange;
+                    if (rotation > request.MaxRotation) rotation = request.MaxRotation;
+                    thrust.Rotation = rotation;
+                    if (thrust.Rotation > 0)
+                    {
+                        // Burn
+                        var power = currentObject.State.Power + request.MaxPowerChange;
+                        if (power > request.MaxPower) power = request.MaxPower;
+                        if (power > freeFallInformation.FinalXOffset)
+                            power = Math.Round(freeFallInformation.FinalXOffset);
+                        thrust.Power = power;
+                    }
+                    else
+                    {
+                        // Don't burn
+                        var power = currentObject.State.Power - request.MaxPowerChange;
+                        if (power < 0) power = 0;
+                        thrust.Power = power;
+                    }
                 }
                 else
                 {
-                    // Burn in support of movement.
-
+                    // Burns towards left.
+                    var rotation = currentObject.State.Rotation - request.MaxRotationChange;
+                    if (rotation < -request.MaxRotation) rotation = -request.MaxRotation;
+                    thrust.Rotation = rotation;
+                    if (thrust.Rotation < 0)
+                    {
+                        // Burn
+                        var power = currentObject.State.Power + request.MaxPowerChange;
+                        if (power > request.MaxPower) power = request.MaxPower;
+                        if (power > Math.Abs(freeFallInformation.FinalXOffset))
+                            power = Math.Round(freeFallInformation.FinalXOffset);
+                        thrust.Power = power;
+                    }
+                    else
+                    {
+                        // Don't burn
+                        var power = currentObject.State.Power - request.MaxPowerChange;
+                        if (power < 0) power = 0;
+                        thrust.Power = power;
+                    }
                 }
+
+                currentObject.ApplyThrust(thrust, request.Gravity);
+                thrustActions.Add(thrust);
             }
 
             return thrustActions;
@@ -66,7 +105,7 @@ namespace CodinGame.Utilities.Maths
             return new FreeFallInformation
             {
                 FinalX = xIntersect,
-                FinalXOffset = clone.State.X - xIntersect,
+                FinalXOffset = thrustRequest.DesiredX - xIntersect,
                 Ticks = ticks,
                 FinalAngle = finalAngle,
                 InitialAngle = initialAngle

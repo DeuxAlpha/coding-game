@@ -34,9 +34,10 @@ namespace CodinGame.Utilities.Maths
             ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Top)
         {
             StateHistory.Add(State.Clone());
-            State.XSpeed += Trigonometry.GetHorizontalSpeedFraction(thrust.Rotation, zeroDegreesDirection) * thrust.Force;
-            State.YSpeed += Trigonometry.GetVerticalSpeedFraction(thrust.Rotation, zeroDegreesDirection) * thrust.Force -
+            State.XSpeed += Trigonometry.GetHorizontalSpeedFraction(thrust.Rotation, zeroDegreesDirection) * thrust.Power;
+            State.YSpeed += Trigonometry.GetVerticalSpeedFraction(thrust.Rotation, zeroDegreesDirection) * thrust.Power -
                       gravity;
+            State.Power = thrust.Power;
             State.X += State.XSpeed;
             State.Y += State.YSpeed;
             State.Rotation = thrust.Rotation;

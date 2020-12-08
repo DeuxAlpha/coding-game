@@ -7,6 +7,7 @@ namespace CodinGame.Utilities.Maths
         public double XSpeed { get; set; }
         public double YSpeed { get; set; }
         public double Rotation { get; set; }
+        public double Power { get; set; }
 
         public Object2DMotion Clone()
         {
@@ -16,7 +17,8 @@ namespace CodinGame.Utilities.Maths
                 Y= Y,
                 XSpeed = XSpeed,
                 YSpeed = YSpeed,
-                Rotation = Rotation
+                Rotation = Rotation,
+                Power = Power
             };
         }
     }

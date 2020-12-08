@@ -8,8 +8,8 @@ namespace CodinGame.Tests.Maths
     public class GetThrustsTests
     {
         [Test]
-        [TestCase(10, 0, 0, 125, 5, 0, 0, 175, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15)]
-        [TestCase(3.711, 0, 2500, 2700, 0, 0, 0, 4750, 100, 0, 0, 0, 750, 5, 20, 40, 1, 15)]
+        [TestCase(10, 0, 0, 125, 5, 0, 0, 175, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15, 90, 4)]
+        [TestCase(3.711, 0, 2500, 2700, 0, 0, 0, 4750, 100, 0, 0, 0, 750, 5, 20, 40, 1, 15, 90, 4)]
         public void GetThrustActions_ValidParameters_ReturnsThrustActions(
             double gravity,
             double currentRotation,
@@ -28,7 +28,9 @@ namespace CodinGame.Tests.Maths
             double xSpeedTolerance,
             double ySpeedTolerance,
             double maxPowerChange,
-            double maxRotationChange)
+            double maxRotationChange,
+            double maxRotation,
+            double maxPower)
         {
             var object2D = new Object2D();
             var actions = Trigonometry.GetRequiredThrust(new ThrustRequest
@@ -47,7 +49,11 @@ namespace CodinGame.Tests.Maths
                 XSpeedTolerance = xSpeedTolerance,
                 YSpeedTolerance = ySpeedTolerance,
                 MaxPowerChange = maxPowerChange,
-                MaxRotationChange = maxRotationChange
+                MaxRotationChange = maxRotationChange,
+                MaxRotation = maxRotation,
+                MaxPower = maxPower,
+                XTolerance = xTolerance,
+                YTolerance = yTolerance
             });
             foreach (var action in actions)
             {

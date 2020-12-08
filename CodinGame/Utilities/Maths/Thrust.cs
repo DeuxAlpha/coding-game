@@ -3,12 +3,12 @@ namespace CodinGame.Utilities.Maths
     public class Thrust
     {
         public double Rotation { get; set; }
-        public double Force { get; set; }
+        public double Power { get; set; }
 
-        public Thrust(double rotation, double force)
+        public Thrust(double rotation, double power)
         {
             Rotation = rotation;
-            Force = force;
+            Power = power;
         }
 
         public Thrust()
