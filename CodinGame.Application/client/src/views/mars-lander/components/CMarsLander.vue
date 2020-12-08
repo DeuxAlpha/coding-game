@@ -213,7 +213,7 @@ export default defineComponent({
       }
       graph.value?.clear();
       const surfaceArray = mapToRender.SurfaceZones.map(element => [element.LeftX, element.LeftY]);
-      surfaceArray.push([mapToRender.SurfaceZones])
+      surfaceArray.push([mapToRender.SurfaceZones.last().RightX, mapToRender.SurfaceZones.last().RightY]);
       const generationActors = generations.value?.find(g => g.GenerationNumber === selectedGeneration.value) as Generation | null;
       const chartSeries: any[] = [];
       chartSeries.push({ // Surface
