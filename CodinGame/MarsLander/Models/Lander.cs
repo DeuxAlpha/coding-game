@@ -13,6 +13,8 @@ namespace CodinGame.MarsLander.Models
         public List<Situation> Situations { get; set; } = new List<Situation>();
         public List<string> Actions { get; private set; } = new List<string>();
         public LanderStatus Status { get; private set; }
+        private SurfaceElement _leftCurrentSurface;
+        private SurfaceElement _rightCurrentSurface;
 
         public Lander Clone()
         {
@@ -58,6 +60,7 @@ namespace CodinGame.MarsLander.Models
                 Situation.VerticalSpeed = MarsLanderRules.MinVerticalSpeed;
             Situation.X += Situation.HorizontalSpeed;
             Situation.Y += Situation.VerticalSpeed;
+            UpdateSurfaces(environment);
             Situations.Add(Situation.Clone());
             Actions.Add($"{Situation.Rotation} {Situation.Power}");
             SetStatus(environment);
@@ -110,7 +113,11 @@ namespace CodinGame.MarsLander.Models
                 return;
             }
 
-            if (environment.GetDistanceFromSurface(this) > 0)
+            // TODO: Refactor surface elements to hold all surface zones, angles, and each element in memory.
+            // Might help because we can access actual x and y coordinates via indices
+            // Might be too eager though, so will require testing
+            // TODO: We also need to create a quick function, then, to see if we crashed through a zone/surface element
+            if (MarsLanderEnvironment.GetDistanceFromSurface(this, _leftCurrentSurface, _rightCurrentSurface) > 0)
             {
                 Status = LanderStatus.Flying;
                 return;
@@ -133,6 +140,16 @@ namespace CodinGame.MarsLander.Models
             }
 
             Status = LanderStatus.Landed;
+        }
+
+        private void UpdateSurfaces(MarsLanderEnvironment environment)
+        {
+            // Check if we even need to update the surfaces.
+            if (_leftCurrentSurface?.X < Situation.X && _rightCurrentSurface?.X > Situation.X) return;
+            // We might think that we just move left or right to the next surface elements, but there's a chance that
+            // the lander skipped several zones at once, so we need to analyze the entire zone again.
+            _leftCurrentSurface = environment.GetLeftCurrentSurface(this);
+            _rightCurrentSurface = environment.GetRightCurrentSurface(this);
         }
 
         private int LimitPower(int power)

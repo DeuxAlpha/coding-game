@@ -44,13 +44,21 @@ namespace CodinGame.Utilities.Maths
         /// <summary>Basically, where on a Y-Axis you would end up if you moved the X distance at a particular angle.</summary>
         public static double GetNewYPosition(double angle, double xLength, int decimals = 3)
         {
-            return Math.Round(Math.Tan(ToRadians(angle)) * xLength, decimals);
+            var radians = ToRadians(angle);
+            var tangent = Math.Tan(radians);
+            var newYPosition = tangent * xLength;
+            var rounded = Math.Round(newYPosition, decimals);
+            return rounded;
         }
 
         /// <summary>Basically, where on a X-Axis you would end up if you moved the Y distance at a particular angle.</summary>
         public static double GetNewXPosition(double angle, double yLength, int decimals = 3)
         {
-            return Math.Round(yLength / Math.Tan(ToRadians(angle)), decimals);
+            var radians = ToRadians(angle);
+            var tangent = Math.Tan(radians);
+            var newXPosition = yLength / tangent;
+            var rounded = Math.Round(newXPosition, decimals);
+            return rounded;
         }
 
         public static double GetHorizontalSpeedFraction(double angle, ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right, int decimals = 3)

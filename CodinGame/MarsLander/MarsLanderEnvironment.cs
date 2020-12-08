@@ -11,28 +11,66 @@ namespace CodinGame.MarsLander
     {
         private List<SurfaceElement> _surfaceList;
         public IEnumerable<SurfaceElement> Surface => _surfaceList;
+        // Might have to update this in case there might be more than one landing zone.
+        private SurfaceElement _leftLandingZone;
+        private SurfaceElement _rightLandingZone;
+        private int _centerLandingZoneX;
 
         public MarsLanderEnvironment(List<SurfaceElement> surfaceList)
         {
             _surfaceList = surfaceList;
+            SetLandingZone();
+        }
+
+        private void SetLandingZone()
+        {
+            for (var i = 0; i < _surfaceList.Count; i++)
+            {
+                var leftSurface = _surfaceList[i];
+                var rightSurface = _surfaceList[i + 1];
+                if (leftSurface.Y != rightSurface.Y) continue;
+                _leftLandingZone = leftSurface;
+                _rightLandingZone = rightSurface;
+                _centerLandingZoneX = (leftSurface.X + rightSurface.X) / 2;
+                return;
+            }
         }
 
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
         public int GetDistanceFromSurface(Lander lander)
         {
             var rightZoneUnderLander =
-                _surfaceList.FirstOrDefault(element =>
+                _surfaceList.First(element =>
                     element.X >= lander.Situation.X && lander.Situation.X <= element.X);
             var rightZoneUnderLanderIndex = _surfaceList.IndexOf(rightZoneUnderLander);
-            var leftZoneUnderLander = _surfaceList.ElementAtOrDefault(rightZoneUnderLanderIndex - 1);
-            if (rightZoneUnderLander == null || leftZoneUnderLander == null)
+            var leftZoneUnderLander = _surfaceList.ElementAt(rightZoneUnderLanderIndex - 1);
+            return GetDistanceFromSurface(lander, leftZoneUnderLander, rightZoneUnderLander);
+        }
+
+        /// <summary>Getting distance from the surface directly under the lander, but we don't need to find the surface
+        /// elements under the lander.</summary>
+        public static int GetDistanceFromSurface(Lander lander, SurfaceElement leftZone, SurfaceElement rightZone)
+        {
+            if (rightZone == null || leftZone == null)
                 return int.MaxValue;
             var zoneAngle = Trigonometry
-                .GetAngle(leftZoneUnderLander.X, leftZoneUnderLander.Y, rightZoneUnderLander.X, rightZoneUnderLander.Y);
-            var landerXInZone = lander.Situation.X - leftZoneUnderLander.X;
-            var surfaceYPosition = leftZoneUnderLander.Y +
+                .GetAngle(leftZone.X, leftZone.Y, rightZone.X, rightZone.Y);
+            var landerXInZone = lander.Situation.X - leftZone.X;
+            var surfaceYPosition = leftZone.Y +
                                    Math.Round(Trigonometry.GetNewYPosition(zoneAngle, landerXInZone));
             return (int) Math.Round(lander.Situation.Y - surfaceYPosition);
+        }
+
+        public SurfaceElement GetLeftCurrentSurface(Lander lander)
+        {
+            return lander.Situation.X < 0 ? null : _surfaceList.Last(element => element.X < lander.Situation.X);
+        }
+
+        public SurfaceElement GetRightCurrentSurface(Lander lander)
+        {
+            return lander.Situation.X > MarsLanderRules.Width
+                ? null
+                : _surfaceList.First(element => element.X > lander.Situation.X);
         }
 
         /// <summary>Checks if lander is moving outside of map.</summary>
@@ -121,15 +159,12 @@ namespace CodinGame.MarsLander
         /// the landing zone.</summary>
         public IEnumerable<SurfaceElement> GetLandingZone()
         {
-            for (var i = 0; i < _surfaceList.Count; i++)
-            {
-                var leftSurface = _surfaceList[i];
-                var rightSurface = _surfaceList[i + 1];
-                if (leftSurface.Y != rightSurface.Y) continue;
-                return new[] {leftSurface, rightSurface};
-            }
-
-            throw new ArgumentOutOfRangeException(nameof(_surfaceList));
+            if (_leftLandingZone != null || _rightLandingZone != null) // Should always be true, as the landing zone gets set in the constructor.
+                return new[] {_leftLandingZone, _rightLandingZone};
+            // However, for sanity's sake, we are going to reset them here in case this didn't happen. This should never
+            // be called, though.
+            SetLandingZone();
+            return new[] {_leftLandingZone, _rightLandingZone};
         }
     }
 }
