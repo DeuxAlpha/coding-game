@@ -68,7 +68,7 @@ namespace CodinGame.MarsLander.Models
 
         public bool WillHitLandingZone(MarsLanderEnvironment environment, int withinTheseTurns = 5)
         {
-            var landingZone = environment.GetLandingZone().ToList();
+            var landingZone = environment.GetLandingZone();
             var puppet = Clone();
             var turns = 0;
             while (puppet.Status == LanderStatus.Flying && turns < withinTheseTurns)
@@ -78,7 +78,7 @@ namespace CodinGame.MarsLander.Models
             }
 
             if (puppet.Status == LanderStatus.Flying) return false;
-            return puppet.Situation.X > landingZone.ElementAt(0).LeftX && puppet.Situation.X < landingZone.ElementAt(1).LeftX;
+            return puppet.Situation.X >= landingZone.LeftX && puppet.Situation.X < landingZone.RightX;
         }
 
 
@@ -117,7 +117,7 @@ namespace CodinGame.MarsLander.Models
             // Might help because we can access actual x and y coordinates via indices
             // Might be too eager though, so will require testing
             // TODO: We also need to create a quick function, then, to see if we crashed through a zone/surface element
-            if (MarsLanderEnvironment.GetDistanceFromSurface(this, _leftCurrentSurface, _rightCurrentSurface) > 0)
+            if (environment.GetDistanceFromSurface(this) > 0)
             {
                 Status = LanderStatus.Flying;
                 return;

@@ -9,42 +9,31 @@ namespace CodinGame.MarsLander
 {
     public class MarsLanderEnvironment
     {
-        private List<SurfaceZone> _surfaceList;
-        public IEnumerable<SurfaceZone> Surface => _surfaceList;
+        private List<SurfaceZone> _surfaceZones;
+
+        private List<SurfaceElement> _surfaceElements;
+
         // Might have to update this in case there might be more than one landing zone.
-        private SurfaceZone _leftLandingZone;
-        private SurfaceZone _rightLandingZone;
+        private SurfaceZone _landingZone;
         private int _centerLandingZoneX;
 
-        public MarsLanderEnvironment(List<SurfaceZone> surfaceList)
+        public MarsLanderEnvironment(List<SurfaceZone> surfaceZones)
         {
-            _surfaceList = surfaceList;
+            _surfaceZones = surfaceZones;
+            _surfaceElements = surfaceZones.SelectMany(zone => zone.SurfaceElements).ToList();
             SetLandingZone();
         }
 
         private void SetLandingZone()
         {
-            for (var i = 0; i < _surfaceList.Count; i++)
-            {
-                var leftSurface = _surfaceList[i];
-                var rightSurface = _surfaceList[i + 1];
-                if (leftSurface.LeftY != rightSurface.LeftY) continue;
-                _leftLandingZone = leftSurface;
-                _rightLandingZone = rightSurface;
-                _centerLandingZoneX = (leftSurface.LeftX + rightSurface.LeftX) / 2;
-                return;
-            }
+            _landingZone = _surfaceZones.First(zone => zone.LeftY == zone.RightY);
+            _centerLandingZoneX = (_landingZone.LeftX + _landingZone.RightX) / 2;
         }
 
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
-        public int GetDistanceFromSurface(Lander lander)
+        public double GetDistanceFromSurface(Lander lander)
         {
-            var rightZoneUnderLander =
-                _surfaceList.First(element =>
-                    element.LeftX >= lander.Situation.X && lander.Situation.X <= element.LeftX);
-            var rightZoneUnderLanderIndex = _surfaceList.IndexOf(rightZoneUnderLander);
-            var leftZoneUnderLander = _surfaceList.ElementAt(rightZoneUnderLanderIndex - 1);
-            return GetDistanceFromSurface(lander, leftZoneUnderLander, rightZoneUnderLander);
+            return lander.Situation.Y - _surfaceElements[lander.Situation.X].Y;
         }
 
         /// <summary>Getting distance from the surface directly under the lander, but we don't need to find the surface
@@ -63,14 +52,14 @@ namespace CodinGame.MarsLander
 
         public SurfaceZone GetLeftCurrentSurface(Lander lander)
         {
-            return lander.Situation.X < 0 ? null : _surfaceList.Last(element => element.LeftX < lander.Situation.X);
+            return lander.Situation.X < 0 ? null : _surfaceZones.Last(element => element.LeftX < lander.Situation.X);
         }
 
         public SurfaceZone GetRightCurrentSurface(Lander lander)
         {
             return lander.Situation.X > MarsLanderRules.Width
                 ? null
-                : _surfaceList.First(element => element.LeftX > lander.Situation.X);
+                : _surfaceZones.First(element => element.LeftX > lander.Situation.X);
         }
 
         /// <summary>Checks if lander is moving outside of map.</summary>
@@ -81,66 +70,59 @@ namespace CodinGame.MarsLander
 
         public Distance GetDistanceFromFlatSurfaceCenter(Lander lander)
         {
-            for (var i = 0; i < _surfaceList.Count; i++)
+            if (_landingZone == null) SetLandingZone();
+            return new Distance
             {
-                var leftSurface = _surfaceList[i];
-                var rightSurface = _surfaceList[i + 1];
-                if (leftSurface.LeftY != rightSurface.LeftY) continue;
-                var centerX = (leftSurface.LeftX + rightSurface.LeftX) / 2;
-
-                return new Distance
-                {
-                    HorizontalDistance = Math.Abs(lander.Situation.X - centerX),
-                    VerticalDistance = Math.Abs(lander.Situation.Y - leftSurface.LeftY),
-                    FullDistance =
-                        Trigonometry.GetDistance(centerX, leftSurface.LeftY, lander.Situation.X, lander.Situation.Y)
-                };
-            }
-
-            throw new ArgumentOutOfRangeException(nameof(_surfaceList), "I guess there is no flat surface.");
+                HorizontalDistance = Math.Abs(lander.Situation.X - _centerLandingZoneX),
+                VerticalDistance = Math.Abs(lander.Situation.Y - _landingZone.LeftY),
+                FullDistance =
+                    Trigonometry.GetDistance(_centerLandingZoneX, _landingZone.LeftY, lander.Situation.X, lander.Situation.Y)
+            };
         }
 
         public Distance GetDistanceFromFlatSurface(Lander lander)
         {
-            for (var i = 0; i < _surfaceList.Count; i++)
+            if (_landingZone == null) SetLandingZone();
+            var side = Side.Above;
+            if (lander.Situation.X < _landingZone.LeftX) side = Side.Left;
+            if (lander.Situation.X > _landingZone.LeftX) side = Side.Right;
+            var horizontalDistance = 0;
+            var fullDistance = 0.0;
+            if (side == Side.Left)
             {
-                var leftSurface = _surfaceList[i];
-                var rightSurface = _surfaceList[i + 1];
-                if (leftSurface.LeftY != rightSurface.LeftY) continue;
-                var side = Side.Above;
-                if (lander.Situation.X < leftSurface.LeftX) side = Side.Left;
-                if (lander.Situation.X > rightSurface.LeftX) side = Side.Right;
-                var horizontalDistance = 0;
-                var fullDistance = 0.0;
-                if (side == Side.Left)
-                {
-                    horizontalDistance = leftSurface.LeftX - lander.Situation.X;
-                    fullDistance = Trigonometry.GetDistance(leftSurface.LeftX, leftSurface.LeftY, lander.Situation.X,
-                        lander.Situation.Y);
-                }
-
-                if (side == Side.Right)
-                {
-                    horizontalDistance = lander.Situation.X - rightSurface.LeftX;
-                    fullDistance = Trigonometry.GetDistance(rightSurface.LeftX, rightSurface.LeftY, lander.Situation.X,
-                        lander.Situation.Y);
-                }
-
-                if (side == Side.Above)
-                {
-                    fullDistance = Trigonometry.GetDistance(rightSurface.LeftX, rightSurface.LeftY, lander.Situation.X,
-                        lander.Situation.Y);
-                }
-
-                return new Distance
-                {
-                    HorizontalDistance = horizontalDistance,
-                    VerticalDistance = lander.Situation.Y - leftSurface.LeftY,
-                    FullDistance = fullDistance
-                };
+                horizontalDistance = _landingZone.LeftX - lander.Situation.X;
+                fullDistance = Trigonometry.GetDistance(
+                    _landingZone.LeftX,
+                    _landingZone.LeftY,
+                    lander.Situation.X,
+                    lander.Situation.Y);
             }
 
-            throw new ArgumentOutOfRangeException(nameof(_surfaceList), "I guess there is no flat surface.");
+            if (side == Side.Right)
+            {
+                horizontalDistance = lander.Situation.X - _landingZone.RightX;
+                fullDistance = Trigonometry.GetDistance(
+                    _landingZone.RightX,
+                    _landingZone.RightY,
+                    lander.Situation.X,
+                    lander.Situation.Y);
+            }
+
+            if (side == Side.Above)
+            {
+                fullDistance = Trigonometry.GetDistance(
+                    _centerLandingZoneX,
+                    _landingZone.LeftY,
+                    lander.Situation.X,
+                    lander.Situation.Y);
+            }
+
+            return new Distance
+            {
+                HorizontalDistance = horizontalDistance,
+                VerticalDistance = lander.Situation.Y - _landingZone.LeftY,
+                FullDistance = fullDistance
+            };
         }
 
         public string GetPotentialWinActions(Lander lander)
@@ -157,14 +139,14 @@ namespace CodinGame.MarsLander
 
         /// <summary>Returns the landing zone. In other words, returns the left and right surface elements that make out
         /// the landing zone.</summary>
-        public IEnumerable<SurfaceZone> GetLandingZone()
+        public SurfaceZone GetLandingZone()
         {
-            if (_leftLandingZone != null || _rightLandingZone != null) // Should always be true, as the landing zone gets set in the constructor.
-                return new[] {_leftLandingZone, _rightLandingZone};
+            if (_landingZone != null)
+                return _landingZone; // Should always be true, as the landing zone gets set in the constructor.
             // However, for sanity's sake, we are going to reset them here in case this didn't happen. This should never
             // be called, though.
             SetLandingZone();
-            return new[] {_leftLandingZone, _rightLandingZone};
+            return _landingZone;
         }
     }
 }

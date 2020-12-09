@@ -28,7 +28,7 @@ namespace CodinGame.MarsLander.Models
             SurfaceElements = new List<SurfaceElement>();
             for (var x = leftX; x < rightX; x++)
             {
-                SurfaceElements.Add(new SurfaceElement {X = x, Y = LeftY + Trigonometry.GetNewYPosition(Angle, x)});
+                SurfaceElements.Add(new SurfaceElement {X = x, Y = LeftY + Trigonometry.GetNewYPosition(Angle, x - leftX)});
             }
         }
     }
