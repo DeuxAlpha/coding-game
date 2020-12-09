@@ -41,19 +41,19 @@ namespace CodinGame.MarsLander.Actors
             {
                 if (MaxActions != null)
                 {
-                    actor.ApplyActions(actor.GetRandomActions((int) MaxActions, _randomNessProvider));
+                    actor.ApplyActions(MarsLanderActor.GetRandomActions((int) MaxActions, _randomNessProvider));
                 }
                 else
                 {
                     actor.ApplyFullRangeRandomActions(_randomNessProvider);
-                    // actor.ApplyRandomActions();
                 }
             }
         }
 
         private void Evolve()
         {
-            var actorAndScoreList = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).ToList();
+            var actorAndScoreList = Actors.Select(actor => ScoreActor(actor, _environment))
+                .OrderBy(actor => actor.Score).ToList();
 
             Generations.Add(new Generation
             {
@@ -66,66 +66,82 @@ namespace CodinGame.MarsLander.Actors
             var mutationChance = _aiWeight.MutationChance;
             var betterBiasCount = (int) Math.Round(Actors.Count * betterCutoff);
 
-            foreach (var actor in Actors)
+            // TODO: Two steps per actor
+            for (var actorIndex = 0; actorIndex < Actors.Count; actorIndex += 2)
             {
-                var firstActor = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
-                var secondActor = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
-                var puppet = new MarsLanderActor(firstActor.Lander, _environment);
-                var actions = new List<string>();
-                var moreActorActionCount = firstActor.Lander.Actions.Count > secondActor.Lander.Actions.Count
-                    ? firstActor.Lander.Actions.Count
-                    : secondActor.Lander.Actions.Count;
-                // TODO: Move this to a method
-                if (MaxActions == null)
+                var firstParent = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
+                var secondParent = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
+                var moreParentActionCount = firstParent.Lander.Actions.Count > secondParent.Lander.Actions.Count
+                    ? firstParent.Lander.Actions.Count
+                    : secondParent.Lander.Actions.Count;
+                // TODO: Apply new crossover model from https://www.codingame.com/blog/genetic-algorithm-mars-lander/
+                for (var childIndex = 0; childIndex < 2; childIndex++)
                 {
-                    for (var actionIndex = 0; actionIndex < moreActorActionCount; actionIndex++)
+                    var childPuppet = new MarsLanderActor(firstParent.Lander, _environment);
+                    var childActions = new List<string>();
+                    for (var actionIndex = 0;
+                        actionIndex < moreParentActionCount && actionIndex < (MaxActions ?? int.MaxValue);
+                        actionIndex++)
                     {
-                        var action =
-                            Randomizer.Gamble(
-                                mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
-                            puppet.GetRandomActions(1, _randomNessProvider).First() :
-                            Randomizer
-                                .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First() :
-                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First();
-                        puppet.ApplyAction(action);
-                        actions.Add(action);
-                        if (puppet.Lander.WillHitLandingZone(_environment, 1))
+                        var firstParentAction = firstParent.Lander.Actions.ElementAtOrDefault(actionIndex);
+                        var secondParentAction = secondParent.Lander.Actions.ElementAtOrDefault(actionIndex);
+                        var randomModifier = Randomizer.GetValueBetween(0.0, 1.0, 2);
+                        string childAction;
+                        if (firstParentAction == null && secondParentAction == null || Randomizer.Gamble(mutationChance))
                         {
-                            puppet.ApplyAction("0 0");
-                            actions.Add(action);
+                            childAction = MarsLanderActor.GetRandomActions(1, _randomNessProvider).First();
+                        }
+                        else
+                        {
+                            // If a parent's action index is null, take both from the other parent. The below algorithm is then not needed
+                            // --> Because taking both values from the same parent simply results into the same action
+                            // Also, depending on the child index, we apply one of two possible algorithms:
+                            // ChildIndex = 0: NewAction = randomModifier * firstParentAction + (1 - randomModifier) * secondParentAction
+                            // ChildIndex = 1: NewAction = (1 - randomModifier) * firstParentAction + randomModifier * secondParentAction
+                            if (firstParentAction == null)
+                            {
+                                childAction = secondParentAction;
+                            }
+
+                            else if (secondParentAction == null)
+                            {
+                                childAction = firstParentAction;
+                            }
+                            else
+                            {
+                                var firstParentActionArray = firstParentAction!.Split(" ");
+                                var firstParentAngle = int.Parse(firstParentActionArray[0]);
+                                var firstParentPower = int.Parse(firstParentActionArray[1]);
+                                var secondParentActionArray = secondParentAction!.Split(" ");
+                                var secondParentAngle = int.Parse(secondParentActionArray[0]);
+                                var secondParentPower = int.Parse(secondParentActionArray[1]);
+                                if (childIndex == 0)
+                                {
+                                    var newAngle = Math.Round(randomModifier * firstParentAngle + (1 - randomModifier) * secondParentAngle);
+                                    var newPower = Math.Round(randomModifier * firstParentPower + (1 - randomModifier) * secondParentPower);
+                                    childAction = $"{newAngle} {newPower}";
+                                }
+                                else
+                                {
+                                    var newAngle = Math.Round((1 - randomModifier) * firstParentAngle + randomModifier * secondParentAngle);
+                                    var newPower = Math.Round((1 - randomModifier) * firstParentPower + randomModifier * secondParentPower);
+                                    childAction = $"{newAngle} {newPower}";
+                                }
+                            }
                         }
 
-                        // Basically creating an entirely new actor.
-                        actor.Reset();
-                        actor.ApplyActions(actions); // Acting to get score for next evolution
-                        if (actor.Lander.Status == LanderStatus.Flying)
-                            actor.ApplyFullRangeRandomActions(_randomNessProvider);
+                        childPuppet.ApplyAction(childAction);
+                        childActions.Add(childAction);
+                        if (!childPuppet.Lander.WillHitLandingZone(_environment, 1)) continue;
+                        childPuppet.ApplyAction("0 0");
+                        childActions.Add("0 0");
+                        break;
                     }
-                }
-                else
-                {
-                    for (var actionIndex = 0; actionIndex < moreActorActionCount && actionIndex < MaxActions; actionIndex++)
-                    {
-                        var action =
-                            Randomizer.Gamble(
-                                mutationChance) ? // If mutating, generate new action based on current puppet (to properly get randomized values on puppet state)
-                            puppet.GetRandomActions(1, _randomNessProvider).First() :
-                            Randomizer
-                                .FlipCoin() ? // Otherwise, flip coin and either get action from first or second actor.
-                            firstActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First() :
-                            secondActor.Lander.Actions.ElementAtOrDefault(actionIndex) ?? puppet.GetRandomActions(1, _randomNessProvider).First();
-                        puppet.ApplyAction(action);
-                        actions.Add(action);
-                        if (puppet.Lander.WillHitLandingZone(_environment, 1))
-                        {
-                            puppet.ApplyAction("0 0");
-                            actions.Add(action);
-                        }
-
-                        actor.Reset();
-                        actor.ApplyActions(actions);
-                    }
+                    // Basically creating an entirely new actor.
+                    Actors[actorIndex + childIndex].Reset();
+                    Actors[actorIndex + childIndex].ApplyActions(childActions); // Acting to get score for next evolution
+                    if (Actors[actorIndex + childIndex].Lander.Status == LanderStatus.Flying && MaxActions == null)
+                        Actors[actorIndex + childIndex].ApplyFullRangeRandomActions(_randomNessProvider);
                 }
             }
         }
@@ -142,11 +158,12 @@ namespace CodinGame.MarsLander.Actors
 
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
-            if (actor.Lander.Status == LanderStatus.Landed) return new GenerationActor
-            {
-                Lander = actor.Lander.Clone(),
-                Score = 0
-            };
+            if (actor.Lander.Status == LanderStatus.Landed)
+                return new GenerationActor
+                {
+                    Lander = actor.Lander.Clone(),
+                    Score = 0
+                };
             var horizontalSpeed = actor.Lander.Situation.HorizontalSpeed;
             var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
             var rotation = actor.Lander.Situation.Rotation;
@@ -155,11 +172,12 @@ namespace CodinGame.MarsLander.Actors
             return new GenerationActor
             {
                 Lander = actor.Lander.Clone(),
-                Score =
+                Score = Math.Round(
                     Math.Abs(horizontalSpeed) * _aiWeight.HorizontalSpeedWeight +
                     Math.Abs(verticalSpeed) * _aiWeight.VerticalSpeedWeight +
                     Math.Abs(rotation) * _aiWeight.RotationWeight +
-                    Math.Abs(distanceFromFlatSurfaceCenter.HorizontalDistance) * _aiWeight.HorizontalCenterDistanceWeight
+                    Math.Abs(distanceFromFlatSurfaceCenter.HorizontalDistance) *
+                    _aiWeight.HorizontalCenterDistanceWeight, 2)
             };
         }
 
@@ -171,9 +189,12 @@ namespace CodinGame.MarsLander.Actors
             for (var i = 0; i < generations; i++)
             {
                 Evolve();
+                if (Generations.Last().Actors.Any(actor => actor.Lander.Status == LanderStatus.Landed))
+                    break;
             }
 
-            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment)).OrderBy(actor => actor.Score).First();
+            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment))
+                .OrderBy(actor => actor.Score).First();
 
             FinalLander = finalActorAndScore.Lander;
             Logger.Log("Final Score", finalActorAndScore.Score);

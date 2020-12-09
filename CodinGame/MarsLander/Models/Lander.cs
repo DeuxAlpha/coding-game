@@ -37,33 +37,38 @@ namespace CodinGame.MarsLander.Models
             return clone;
         }
 
-        public void Apply(int rotation, int power, MarsLanderEnvironment environment)
+        public void Apply(int rotation, int power, MarsLanderEnvironment environment, bool limitAction = false)
         {
             if (Status != LanderStatus.Flying) return;
             if (Situation.Fuel < power) power = Situation.Fuel;
             Situation.Power = LimitPower(power);
             Situation.Rotation = LimitRotation(rotation);
             Situation.Fuel -= power;
-            Situation.HorizontalSpeed +=
-                (int) (Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) *
-                       Situation.Power);
+            Situation.HorizontalSpeed += Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power;
             if (Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
             if (Situation.HorizontalSpeed < MarsLanderRules.MinHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MinHorizontalSpeed;
-            Situation.VerticalSpeed +=
-                (int) (Trigonometry.GetVerticalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) *
-                    Situation.Power - MarsLanderRules.Gravity);
+            Situation.VerticalSpeed += Trigonometry.GetVerticalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power - MarsLanderRules.Gravity;
             if (Situation.VerticalSpeed > MarsLanderRules.MaxVerticalSpeed)
                 Situation.VerticalSpeed = MarsLanderRules.MaxVerticalSpeed;
             if (Situation.VerticalSpeed < MarsLanderRules.MinVerticalSpeed)
                 Situation.VerticalSpeed = MarsLanderRules.MinVerticalSpeed;
             Situation.X += Situation.HorizontalSpeed;
             Situation.Y += Situation.VerticalSpeed;
+            RoundValues();
             UpdateSurfaces(environment);
             Situations.Add(Situation.Clone());
-            Actions.Add($"{Situation.Rotation} {Situation.Power}");
+            Actions.Add(limitAction ? $"{Situation.Rotation} {Situation.Power}" : $"{rotation} {power}");
             SetStatus(environment);
+        }
+
+        private void RoundValues()
+        {
+            Situation.HorizontalSpeed = Math.Round(Situation.HorizontalSpeed, 2);
+            Situation.VerticalSpeed = Math.Round(Situation.VerticalSpeed, 2);
+            Situation.X = Math.Round(Situation.X, 2);
+            Situation.Y = Math.Round(Situation.Y, 2);
         }
 
         public bool WillHitLandingZone(MarsLanderEnvironment environment, int withinTheseTurns = 5)
@@ -100,6 +105,7 @@ namespace CodinGame.MarsLander.Models
         private void SetStatus(MarsLanderEnvironment environment)
         {
             if (Status != LanderStatus.Flying) return;
+
             var previousSituation = Situations.LastOrDefault();
             if (previousSituation == null)
             {
@@ -113,10 +119,10 @@ namespace CodinGame.MarsLander.Models
                 return;
             }
 
-            // TODO: Refactor surface elements to hold all surface zones, angles, and each element in memory.
-            // Might help because we can access actual x and y coordinates via indices
-            // Might be too eager though, so will require testing
             // TODO: We also need to create a quick function, then, to see if we crashed through a zone/surface element
+            // Since we are not using the previous situation to actually calculate what we might have passed through
+            // (We are only checking if we are under the surface (NOW), rather than if we have been at any point.
+            // E.g. moving through something like this '/\' is entirely possible.
             if (environment.GetDistanceFromSurface(this) > 0)
             {
                 Status = LanderStatus.Flying;

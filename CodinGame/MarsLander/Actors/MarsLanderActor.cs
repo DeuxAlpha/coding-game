@@ -46,39 +46,20 @@ namespace CodinGame.MarsLander.Actors
             {
                 var randomAngle = randomNessProvider.GetRandomAngle();
                 var randomPower = randomNessProvider.GetRandomPower();
-
                 Lander.Apply(randomAngle, randomPower, _environment);
             }
         }
 
-        public IEnumerable<string> GetRandomActions(int actions, RandomNessProvider randomNessProvider)
+        public static IEnumerable<string> GetRandomActions(int actions, RandomNessProvider randomNessProvider)
         {
-            var puppet = Lander.Clone();
+            var randomActions = new List<string>();
 
             for (var i = 0; i < actions; i++)
             {
-                var randomAngle = randomNessProvider.GetRandomAngle();
-                var randomPower = randomNessProvider.GetRandomPower();
-                 puppet.Apply(randomAngle, randomPower, _environment);
+                randomActions.Add($"{randomNessProvider.GetRandomAngle()} {randomNessProvider.GetRandomPower()}");
             }
 
-            return puppet.Actions;
-        }
-
-
-        public IEnumerable<string> GetRandomActions(RandomNessProvider randomNessProvider)
-        {
-            var puppet = Lander.Clone();
-
-            while (puppet.Status == LanderStatus.Flying)
-            {
-                var randomAngle = randomNessProvider.GetRandomAngle();
-                var randomPower = randomNessProvider.GetRandomPower();
-
-                puppet.Apply(randomAngle, randomPower, _environment);
-            }
-
-            return puppet.Actions;
+            return randomActions;
         }
     }
 }

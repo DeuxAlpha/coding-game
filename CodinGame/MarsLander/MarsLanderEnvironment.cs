@@ -33,7 +33,7 @@ namespace CodinGame.MarsLander
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
         public double GetDistanceFromSurface(Lander lander)
         {
-            return lander.Situation.Y - _surfaceElements[lander.Situation.X].Y;
+            return lander.Situation.Y - _surfaceElements[(int) lander.Situation.X].Y;
         }
 
         /// <summary>Getting distance from the surface directly under the lander, but we don't need to find the surface
@@ -86,7 +86,7 @@ namespace CodinGame.MarsLander
             var side = Side.Above;
             if (lander.Situation.X < _landingZone.LeftX) side = Side.Left;
             if (lander.Situation.X > _landingZone.LeftX) side = Side.Right;
-            var horizontalDistance = 0;
+            var horizontalDistance = 0.0;
             var fullDistance = 0.0;
             if (side == Side.Left)
             {
