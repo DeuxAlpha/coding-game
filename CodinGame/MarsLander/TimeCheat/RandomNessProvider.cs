@@ -28,9 +28,9 @@ namespace CodinGame.MarsLander.TimeCheat
             for (var i = 0; i < _cacheSize; i++)
             {
                 if (randomAngles.Count < _cacheSize)
-                    randomAngles.Push(Randomizer.GetValueBetween(MarsLanderRules.MinAngle, MarsLanderRules.MaxAngle));
+                    randomAngles.Push(Randomizer.GetValueBetween(-MarsLanderRules.MaxAngleChange, MarsLanderRules.MaxAngleChange));
                 if (randomPower.Count < _cacheSize)
-                    randomPower.Push(Randomizer.GetValueBetween(MarsLanderRules.MinPower, MarsLanderRules.MaxPower));
+                    randomPower.Push(Randomizer.GetValueBetween(-MarsLanderRules.MaxPowerChange, MarsLanderRules.MaxPowerChange));
                 if (randomPower.Count == _cacheSize && randomAngles.Count == _cacheSize)
                     break;
             }

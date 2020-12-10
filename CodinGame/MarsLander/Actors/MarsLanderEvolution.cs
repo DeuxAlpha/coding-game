@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
@@ -61,20 +62,27 @@ namespace CodinGame.MarsLander.Actors
                 GenerationNumber = Generations.Count + 1
             });
 
+
             var betterBias = _aiWeight.BetterBias; // How likely it is that a better actor is used than a worse one.
             var betterCutoff = _aiWeight.BetterCutoff; // Percentage of what are considered good actors vs bad ones.
-            var mutationChance = _aiWeight.MutationChance;
             var betterBiasCount = (int) Math.Round(Actors.Count * betterCutoff);
+            var elitism = _aiWeight.ElitismBias; // The percentage that gets copied directly to the new generation.
+            var mutationChance = _aiWeight.MutationChance;
+            var elitismCount = (int) Math.Round(Actors.Count * elitism);
 
-            // TODO: Two steps per actor
-            for (var actorIndex = 0; actorIndex < Actors.Count; actorIndex += 2)
+            for (var eliteIndex = 0; eliteIndex < elitismCount; eliteIndex++)
+            {
+                UpdateActor(eliteIndex, actorAndScoreList[eliteIndex].Lander.Actions);
+            }
+
+            for (var actorIndex = 0 + elitismCount; actorIndex < Actors.Count; actorIndex += 2)
             {
                 var firstParent = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
                 var secondParent = GetBiasedActor(betterBias, betterBiasCount, actorAndScoreList);
+                var randomModifier = Randomizer.GetValueBetween(0.0, 1.0, 2);
                 var moreParentActionCount = firstParent.Lander.Actions.Count > secondParent.Lander.Actions.Count
                     ? firstParent.Lander.Actions.Count
                     : secondParent.Lander.Actions.Count;
-                // TODO: Apply new crossover model from https://www.codingame.com/blog/genetic-algorithm-mars-lander/
                 for (var childIndex = 0; childIndex < 2; childIndex++)
                 {
                     var childPuppet = new MarsLanderActor(firstParent.Lander, _environment);
@@ -85,9 +93,9 @@ namespace CodinGame.MarsLander.Actors
                     {
                         var firstParentAction = firstParent.Lander.Actions.ElementAtOrDefault(actionIndex);
                         var secondParentAction = secondParent.Lander.Actions.ElementAtOrDefault(actionIndex);
-                        var randomModifier = Randomizer.GetValueBetween(0.0, 1.0, 2);
                         string childAction;
-                        if (firstParentAction == null && secondParentAction == null || Randomizer.Gamble(mutationChance))
+                        if (firstParentAction == null && secondParentAction == null ||
+                            Randomizer.Gamble(mutationChance))
                         {
                             childAction = MarsLanderActor.GetRandomActions(1, _randomNessProvider).First();
                         }
@@ -117,14 +125,18 @@ namespace CodinGame.MarsLander.Actors
                                 var secondParentPower = int.Parse(secondParentActionArray[1]);
                                 if (childIndex == 0)
                                 {
-                                    var newAngle = Math.Round(randomModifier * firstParentAngle + (1 - randomModifier) * secondParentAngle);
-                                    var newPower = Math.Round(randomModifier * firstParentPower + (1 - randomModifier) * secondParentPower);
+                                    var newAngle = Math.Round(randomModifier * firstParentAngle +
+                                                              (1 - randomModifier) * secondParentAngle);
+                                    var newPower = Math.Round(randomModifier * firstParentPower +
+                                                              (1 - randomModifier) * secondParentPower);
                                     childAction = $"{newAngle} {newPower}";
                                 }
                                 else
                                 {
-                                    var newAngle = Math.Round((1 - randomModifier) * firstParentAngle + randomModifier * secondParentAngle);
-                                    var newPower = Math.Round((1 - randomModifier) * firstParentPower + randomModifier * secondParentPower);
+                                    var newAngle = Math.Round((1 - randomModifier) * firstParentAngle +
+                                                              randomModifier * secondParentAngle);
+                                    var newPower = Math.Round((1 - randomModifier) * firstParentPower +
+                                                              randomModifier * secondParentPower);
                                     childAction = $"{newAngle} {newPower}";
                                 }
                             }
@@ -132,16 +144,18 @@ namespace CodinGame.MarsLander.Actors
 
                         childPuppet.ApplyAction(childAction);
                         childActions.Add(childAction);
+                        // TODO: There's something fishy going on here.
+                        // It seems like the last action to land is broken.
+                        // Landers are stopping over the actual Y coordinates.
+                        // And the last action does not get applied (e.g. 0 1 below)
+                        // Also, some landers think the landed successfully even though their rotation is wrong.
                         if (!childPuppet.Lander.WillHitLandingZone(_environment, 1)) continue;
-                        childPuppet.ApplyAction("0 0");
-                        childActions.Add("0 0");
+                        childPuppet.ApplyAction("0 1");
+                        childActions.Add("0 1");
                         break;
                     }
-                    // Basically creating an entirely new actor.
-                    Actors[actorIndex + childIndex].Reset();
-                    Actors[actorIndex + childIndex].ApplyActions(childActions); // Acting to get score for next evolution
-                    if (Actors[actorIndex + childIndex].Lander.Status == LanderStatus.Flying && MaxActions == null)
-                        Actors[actorIndex + childIndex].ApplyFullRangeRandomActions(_randomNessProvider);
+
+                    UpdateActor(actorIndex + childIndex, childActions);
                 }
             }
         }
@@ -156,6 +170,15 @@ namespace CodinGame.MarsLander.Actors
                 : actorAndScoreList[Randomizer.GetValueBetween(betterBiasCount, Actors.Count - 1)];
         }
 
+        private void UpdateActor(int index, IEnumerable<string> actions)
+        {
+            // Basically creating an entirely new actor.
+            Actors[index].Reset();
+            Actors[index].ApplyActions(actions); // Acting to get score for next evolution
+            if (Actors[index].Lander.Status == LanderStatus.Flying && MaxActions == null)
+                Actors[index].ApplyFullRangeRandomActions(_randomNessProvider);
+        }
+
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
             if (actor.Lander.Status == LanderStatus.Landed)
@@ -164,20 +187,46 @@ namespace CodinGame.MarsLander.Actors
                     Lander = actor.Lander.Clone(),
                     Score = 0
                 };
-            var horizontalSpeed = actor.Lander.Situation.HorizontalSpeed;
-            var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
-            var rotation = actor.Lander.Situation.Rotation;
-            var distanceFromFlatSurface = environment.GetDistanceFromFlatSurfaceCenter(actor.Lander);
-            var distanceFromFlatSurfaceCenter = environment.GetDistanceFromFlatSurfaceCenter(actor.Lander);
+            var distanceFromFlatSurface = environment.GetDistanceFromFlatSurface(actor.Lander);
+            var horizontalDistance = Math.Abs(distanceFromFlatSurface.HorizontalDistance);
+            var verticalDistance = Math.Abs(distanceFromFlatSurface.VerticalDistance);
+            var horizontalSpeed = Math.Abs(actor.Lander.Situation.HorizontalSpeed);
+            var verticalSpeed = Math.Abs(actor.Lander.Situation.VerticalSpeed);
+            var rotation = Math.Abs(actor.Lander.Situation.Rotation);
+            var fuel = actor.Lander.Situation.Fuel;
+            // TODO: Need to figure out when to apply which scoring method.
+            // if (distanceFromFlatSurface.HorizontalDistance > 0)
+            // {
+                // We want to first and foremost get to the landing zone. We can worry about speed and rotation after.
+                // For that reason, we are going to return a very low score if we didn't even make it to the landing zone.
+                // return new GenerationActor
+                // {
+                    // Lander = actor.Lander.Clone(),
+                    // Score = distanceFromFlatSurface.HorizontalDistance * _aiWeight.HorizontalDistanceWeight +
+                            // horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
+                            // verticalSpeed * _aiWeight.VerticalSpeedWeight +
+                            // rotation * _aiWeight.RotationWeight
+                // };
+            // }
+
+            // return new GenerationActor
+            // {
+                // Lander = actor.Lander.Clone(),
+                // Score =
+                    // horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
+                    // verticalSpeed * _aiWeight.VerticalSpeedWeight +
+                    // rotation * _aiWeight.RotationWeight
+            // };
             return new GenerationActor
             {
                 Lander = actor.Lander.Clone(),
-                Score = Math.Round(
-                    Math.Abs(horizontalSpeed) * _aiWeight.HorizontalSpeedWeight +
-                    Math.Abs(verticalSpeed) * _aiWeight.VerticalSpeedWeight +
-                    Math.Abs(rotation) * _aiWeight.RotationWeight +
-                    Math.Abs(distanceFromFlatSurfaceCenter.HorizontalDistance) *
-                    _aiWeight.HorizontalCenterDistanceWeight, 2)
+                Score =
+                    horizontalDistance * _aiWeight.HorizontalDistanceWeight +
+                    verticalDistance * _aiWeight.VerticalDistanceWeight +
+                    horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
+                    verticalSpeed * _aiWeight.VerticalSpeedWeight +
+                    rotation * _aiWeight.RotationWeight +
+                    fuel * _aiWeight.FuelWeight
             };
         }
 
@@ -193,11 +242,13 @@ namespace CodinGame.MarsLander.Actors
                     break;
             }
 
-            var finalActorAndScore = Actors.Select(actor => ScoreActor(actor, _environment))
-                .OrderBy(actor => actor.Score).First();
+            var finalActorAndScore = Generations
+                .SelectMany(generation => generation.Actors)
+                .Select(actor => actor)
+                .OrderBy(actor => actor.Score)
+                .First();
 
             FinalLander = finalActorAndScore.Lander;
-            Logger.Log("Final Score", finalActorAndScore.Score);
         }
     }
 }

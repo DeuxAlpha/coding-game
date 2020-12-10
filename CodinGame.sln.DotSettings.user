@@ -2,6 +2,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=69f25fd0_002D07ee_002D470e_002Da790_002D753641049feb/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetThrustActions_ValidParameters_ReturnsThrustActions" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetThrustsTests.GetThrustActions_ValidParameters_ReturnsThrustActions&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.MarsLander.MarsLanderTests.Apply_ValidParameters_AppliesMovement&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

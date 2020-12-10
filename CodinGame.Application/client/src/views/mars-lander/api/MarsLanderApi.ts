@@ -3,6 +3,7 @@ import {Map} from "@/views/mars-lander/models/environment/Map";
 import {toPascal} from "@/helpers/PropertyTransformer";
 import {Generation} from "@/views/mars-lander/models/evolution/Generation";
 import {LandRequest} from "@/views/mars-lander/api/requests/LandRequest";
+import {CalculateWeightRequest} from "@/views/mars-lander/api/requests/CalculateWeightRequest";
 
 export class MarsLanderApi {
   private readonly apiClient = axios.create({
@@ -21,5 +22,12 @@ export class MarsLanderApi {
       .then(response => {
         return toPascal(response.data) as Generation[];
       })
+  }
+
+  public async CalculateWeights(calculateWeightRequest: CalculateWeightRequest): Promise<void> {
+    return await this.apiClient.post("mars-lander/calculate-weights", calculateWeightRequest)
+      .then(response => {
+        console.dir(response);
+      });
   }
 }

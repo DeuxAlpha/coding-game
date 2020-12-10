@@ -13,8 +13,7 @@ namespace CodinGame.MarsLander.Models
         public List<Situation> Situations { get; set; } = new List<Situation>();
         public List<string> Actions { get; private set; } = new List<string>();
         public LanderStatus Status { get; private set; }
-        private SurfaceZone _leftCurrentSurface;
-        private SurfaceZone _rightCurrentSurface;
+        private SurfaceZone _currentSurface;
 
         public Lander Clone()
         {
@@ -37,13 +36,14 @@ namespace CodinGame.MarsLander.Models
             return clone;
         }
 
-        public void Apply(int rotation, int power, MarsLanderEnvironment environment, bool limitAction = false)
+        public void Apply(int rotationChange, int powerChange, MarsLanderEnvironment environment)
         {
             if (Status != LanderStatus.Flying) return;
-            if (Situation.Fuel < power) power = Situation.Fuel;
-            Situation.Power = LimitPower(power);
-            Situation.Rotation = LimitRotation(rotation);
-            Situation.Fuel -= power;
+            if (Situation.Fuel < Situation.Power + powerChange) powerChange = 0;
+            if (Situation.Fuel < Situation.Power) powerChange = -1;
+            Situation.Power += LimitPower(powerChange);
+            Situation.Rotation += LimitRotation(rotationChange);
+            Situation.Fuel -= Situation.Power;
             Situation.HorizontalSpeed += Trigonometry.GetHorizontalSpeedFraction(Situation.Rotation, ZeroDegreesDirection.Top) * Situation.Power;
             if (Situation.HorizontalSpeed > MarsLanderRules.MaxHorizontalSpeed)
                 Situation.HorizontalSpeed = MarsLanderRules.MaxHorizontalSpeed;
@@ -59,7 +59,7 @@ namespace CodinGame.MarsLander.Models
             RoundValues();
             UpdateSurfaces(environment);
             Situations.Add(Situation.Clone());
-            Actions.Add(limitAction ? $"{Situation.Rotation} {Situation.Power}" : $"{rotation} {power}");
+            Actions.Add($"{rotationChange} {powerChange}");
             SetStatus(environment);
         }
 
@@ -151,35 +151,28 @@ namespace CodinGame.MarsLander.Models
         private void UpdateSurfaces(MarsLanderEnvironment environment)
         {
             // Check if we even need to update the surfaces.
-            if (_leftCurrentSurface?.LeftX < Situation.X && _rightCurrentSurface?.LeftX > Situation.X) return;
+            if (_currentSurface?.LeftX <= Situation.X && _currentSurface?.RightX < Situation.X) return;
             // We might think that we just move left or right to the next surface elements, but there's a chance that
             // the lander skipped several zones at once, so we need to analyze the entire zone again.
-            _leftCurrentSurface = environment.GetLeftCurrentSurface(this);
-            _rightCurrentSurface = environment.GetRightCurrentSurface(this);
+            _currentSurface = environment.GetCurrentSurface(this);
         }
 
-        private int LimitPower(int power)
+        private int LimitPower(int powerChange)
         {
-            var powerDifference = power - Situation.Power;
-            if (Math.Abs(powerDifference) > MarsLanderRules.MaxPowerChange)
-                powerDifference = powerDifference > 0 ? MarsLanderRules.MaxPowerChange : -MarsLanderRules.MaxPowerChange;
-            if (Situation.Power + powerDifference > MarsLanderRules.MaxPower)
-                powerDifference = Situation.Power - MarsLanderRules.MaxPower;
-            if (Situation.Power + powerDifference < MarsLanderRules.MinPower)
-                powerDifference = MarsLanderRules.MinPower - Situation.Power;
-            return Situation.Power + powerDifference;
+            if (Situation.Power + powerChange > MarsLanderRules.MaxPower)
+                powerChange = 0;
+            if (Situation.Power + powerChange < MarsLanderRules.MinPower)
+                powerChange = 0;
+            return powerChange;
         }
 
-        private int LimitRotation(int rotation)
+        private int LimitRotation(int rotationChange)
         {
-            var rotationDifference = rotation - Situation.Rotation;
-            if (Math.Abs(rotationDifference) > MarsLanderRules.MaxAngleChange)
-                rotationDifference = rotationDifference > 0 ? MarsLanderRules.MaxAngleChange : -MarsLanderRules.MaxAngleChange;
-            if (Situation.Rotation + rotationDifference > MarsLanderRules.MaxAngle)
-                rotationDifference = Situation.Rotation - MarsLanderRules.MaxAngle;
-            if (Situation.Rotation + rotationDifference < MarsLanderRules.MinAngle)
-                rotationDifference = MarsLanderRules.MinAngle - Situation.Rotation;
-            return Situation.Rotation + rotationDifference;
+            if (Situation.Rotation + rotationChange > MarsLanderRules.MaxAngle)
+                rotationChange = MarsLanderRules.MaxAngle - Situation.Rotation;
+            if (Situation.Rotation + rotationChange < MarsLanderRules.MinAngle)
+                rotationChange = MarsLanderRules.MinAngle - Situation.Rotation;
+            return rotationChange;
         }
     }
 }

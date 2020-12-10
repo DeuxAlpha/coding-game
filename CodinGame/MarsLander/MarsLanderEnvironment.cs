@@ -33,7 +33,7 @@ namespace CodinGame.MarsLander
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
         public double GetDistanceFromSurface(Lander lander)
         {
-            return lander.Situation.Y - _surfaceElements[(int) lander.Situation.X].Y;
+            return lander.Situation.Y - _surfaceElements.ElementAtOrDefault((int) lander.Situation.X)?.Y ?? double.MinValue;
         }
 
         /// <summary>Getting distance from the surface directly under the lander, but we don't need to find the surface
@@ -50,16 +50,19 @@ namespace CodinGame.MarsLander
             return (int) Math.Round(lander.Situation.Y - surfaceYPosition);
         }
 
-        public SurfaceZone GetLeftCurrentSurface(Lander lander)
+        public SurfaceZone GetCurrentSurface(Lander lander)
         {
-            return lander.Situation.X < 0 ? null : _surfaceZones.Last(element => element.LeftX < lander.Situation.X);
+            if (lander.Situation.X < 0) return null;
+            if (lander.Situation.X > MarsLanderRules.Width) return null;
+            return _surfaceZones
+                .Last(element => element.LeftX <= lander.Situation.X && element.RightX > lander.Situation.X);
         }
 
         public SurfaceZone GetRightCurrentSurface(Lander lander)
         {
             return lander.Situation.X > MarsLanderRules.Width
                 ? null
-                : _surfaceZones.First(element => element.LeftX > lander.Situation.X);
+                : _surfaceZones.FirstOrDefault(element => element.LeftX > lander.Situation.X);
         }
 
         /// <summary>Checks if lander is moving outside of map.</summary>
@@ -85,7 +88,7 @@ namespace CodinGame.MarsLander
             if (_landingZone == null) SetLandingZone();
             var side = Side.Above;
             if (lander.Situation.X < _landingZone.LeftX) side = Side.Left;
-            if (lander.Situation.X > _landingZone.LeftX) side = Side.Right;
+            if (lander.Situation.X > _landingZone.RightX) side = Side.Right;
             var horizontalDistance = 0.0;
             var fullDistance = 0.0;
             if (side == Side.Left)
@@ -111,8 +114,8 @@ namespace CodinGame.MarsLander
             if (side == Side.Above)
             {
                 fullDistance = Trigonometry.GetDistance(
-                    _centerLandingZoneX,
-                    _landingZone.LeftY,
+                    lander.Situation.X, // We are above, so we do not need to move to the left or right.
+                    _landingZone.LeftY, // Y is the same everywhere in the landing zone.
                     lander.Situation.X,
                     lander.Situation.Y);
             }
@@ -120,7 +123,7 @@ namespace CodinGame.MarsLander
             return new Distance
             {
                 HorizontalDistance = horizontalDistance,
-                VerticalDistance = lander.Situation.Y - _landingZone.LeftY,
+                VerticalDistance = lander.Situation.Y - _landingZone.LeftY, // Y is the same everywhere in the landing zone.
                 FullDistance = fullDistance
             };
         }

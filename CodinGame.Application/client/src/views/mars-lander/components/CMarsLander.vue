@@ -7,6 +7,7 @@
           <option v-for="mapElement of mapElements" :value="mapElement.Name">{{ mapElement.Name }}</option>
         </select>
         <AButton :disabled="!selectedMap" @click="requestLanding">Land</AButton>
+        <AButton :disabled="!selectedMap" @click="calculateWeights">Calculate Weights</AButton>
         <div class="ml-auto">
           <AButton @click="expandParams = !expandParams">
             <template v-if="expandParams">Hide Params</template>
@@ -18,23 +19,34 @@
         <div class="flex flex-row w-full">
           <div class="w-1/3">
             <div class="flex flex-row">
+              <label class="w-56" for="vertical-center-distance-weight">Horizontal Distance Weight</label>
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="vertical-center-distance-weight"
+                     v-model="horizontalDistanceWeight">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="vertical-distance-weight">Vertical Distance Weight</label>
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="vertical-distance-weight"
+                     v-model="verticalDistanceWeight">
+            </div>
+            <div class="flex flex-row">
               <label class="w-56" for="horizontal-speed-weight">Horizontal Speed Weight</label>
-              <input type="number" class="w-14 border border-gray-500" id="horizontal-speed-weight"
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="horizontal-speed-weight"
                      v-model="horizontalSpeedWeight">
             </div>
             <div class="flex flex-row">
               <label class="w-56" for="vertical-speed-weight">Vertical Speed Weight</label>
-              <input type="number" class="w-14 border border-gray-500" id="vertical-speed-weight"
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="vertical-speed-weight"
                      v-model="verticalSpeedWeight">
             </div>
             <div class="flex flex-row">
               <label class="w-56" for="rotation-weight">Rotation Weight</label>
-              <input type="number" class="w-14 border border-gray-500" id="rotation-weight" v-model="rotationWeight">
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="rotation-weight"
+                     v-model="rotationWeight">
             </div>
             <div class="flex flex-row">
-              <label class="w-56" for="vertical-center-distance-weight">Horizontal Center Distance Weight</label>
-              <input type="number" class="w-14 border border-gray-500" id="vertical-center-distance-weight"
-                     v-model="horizontalCenterDistanceWeight">
+              <label class="w-56" for="fuel-weight">Fuel Weight</label>
+              <input step="0.1" type="number" class="w-14 border border-gray-500" id="fuel-weight"
+                     v-model="fuelWeight">
             </div>
           </div>
           <div class="w-1/3">
@@ -54,15 +66,23 @@
             </div>
             <div class="flex flex-row">
               <label class="w-56" for="better-bias">Better Bias</label>
-              <input type="number" class="w-14 border border-gray-500" id="better-bias" v-model="betterBias">
+              <input step="0.01" type="number" class="w-14 border border-gray-500" id="better-bias"
+                     v-model="betterBias">
             </div>
             <div class="flex flex-row">
               <label class="w-56" for="better-cutoff">Better Cutoff</label>
-              <input type="number" class="w-14 border border-gray-500" id="better-cutoff" v-model="betterCutoff">
+              <input step="0.01" type="number" class="w-14 border border-gray-500" id="better-cutoff"
+                     v-model="betterCutoff">
             </div>
             <div class="flex flex-row">
               <label class="w-56" for="mutation-chance">Mutation Chance</label>
-              <input type="number" class="w-14 border border-gray-500" id="mutation-chance" v-model="mutationChance">
+              <input step="0.01" type="number" class="w-14 border border-gray-500" id="mutation-chance"
+                     v-model="mutationChance">
+            </div>
+            <div class="flex flex-row">
+              <label class="w-56" for="elitism-bias">Elitism Bias</label>
+              <input step="0.01" type="number" class="w-14 border border-gray-500" id="elitism-bias"
+                     v-model="elitismBias">
             </div>
           </div>
           <div class="w-1/3">
@@ -121,16 +141,20 @@
           <div class="w-full">Rotation</div>
           <div class="w-full">Power</div>
           <div class="w-full">Fuel</div>
+          <div class="w-full"></div>
         </div>
         <div class="flex flex-row w-full" v-for="(actor, index) of orderedActors" :key="index">
-          <div class="w-full">{{actor.Score}}</div>
-          <div class="w-full">{{actor.Lander.Situation.X}}</div>
-          <div class="w-full">{{actor.Lander.Situation.Y}}</div>
-          <div class="w-full">{{actor.Lander.Situation.HorizontalSpeed}}</div>
-          <div class="w-full">{{actor.Lander.Situation.VerticalSpeed}}</div>
-          <div class="w-full">{{actor.Lander.Situation.Rotation}}</div>
-          <div class="w-full">{{actor.Lander.Situation.Power}}</div>
-          <div class="w-full">{{actor.Lander.Situation.Fuel}}</div>
+          <div class="w-full">{{ actor.Score }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.X }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.Y }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.HorizontalSpeed }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.VerticalSpeed }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.Rotation }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.Power }}</div>
+          <div class="w-full">{{ actor.Lander.Situation.Fuel }}</div>
+          <div class="w-full">
+            <button class="bg-blue-200" @click="copyActions(index)">Copy Actions</button>
+          </div>
         </div>
       </div>
     </div>
@@ -150,6 +174,7 @@ import {EvolutionParameters} from "@/views/mars-lander/models/evolution/Evolutio
 import {LanderStatus} from "@/views/mars-lander/models/evolution/LanderStatus";
 import ALoadingOverlay from "@/components/utilities/ALoadingOverlay.vue";
 import {GenerationActor} from "@/views/mars-lander/models/evolution/GenerationActor";
+import {CalculateWeightRequest} from "@/views/mars-lander/api/requests/CalculateWeightRequest";
 
 export default defineComponent({
   name: 'CMarsLander',
@@ -160,7 +185,9 @@ export default defineComponent({
     const horizontalSpeedWeight = ref(1);
     const verticalSpeedWeight = ref(1);
     const rotationWeight = ref(1);
-    const horizontalCenterDistanceWeight = ref(1);
+    const horizontalDistanceWeight = ref(1);
+    const verticalDistanceWeight = ref(1);
+    const fuelWeight = ref(1);
     const generationRequest = ref(100);
     const populationRequest = ref(100);
     const maxActions = ref(-1);
@@ -174,6 +201,7 @@ export default defineComponent({
     const betterBias = ref(0.8);
     const betterCutoff = ref(0.2);
     const mutationChance = ref(0.05);
+    const elitismBias = ref(0.2);
     const expandParams = ref(false);
     const loading = ref(false);
 
@@ -254,7 +282,7 @@ export default defineComponent({
               return `X: ${params.data.value[0]} Y: ${params.data.value[1]}<br/>
               Rotation: ${params.data.rotation} Power: ${params.data.power} Fuel: ${params.data.fuel}<br/>
               HSpeed: ${params.data.horizontalSpeed} VSpeed: ${params.data.verticalSpeed}<br/>
-              Action: ${params.data.action} Score: ${params.data.score}<br/>
+              Action: ${params.data.action} <b>Score: ${params.data.score}</b><br/>
               Status: ${params.data.status} Actions: ${actor.Lander.Actions.length}`;
             }
           }
@@ -273,7 +301,9 @@ export default defineComponent({
           max: 3000
         },
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
+          hideDelay: 500,
+          enterable: true
         },
         series: chartSeries,
       } as Echarts.EChartsOption;
@@ -299,7 +329,8 @@ export default defineComponent({
               HorizontalSpeedWeight: parseFloat(horizontalSpeedWeight.value.toString()),
               VerticalSpeedWeight: parseFloat(verticalSpeedWeight.value.toString()),
               RotationWeight: parseFloat(rotationWeight.value.toString()),
-              HorizontalCenterDistanceWeight: parseFloat(horizontalCenterDistanceWeight.value.toString()),
+              HorizontalDistanceWeight: parseFloat(horizontalDistanceWeight.value.toString()),
+              ElitismBias: parseFloat(elitismBias.value.toString()),
               BetterBias: parseFloat(betterBias.value.toString()),
               BetterCutoff: parseFloat(betterCutoff.value.toString()),
               MutationChance: parseFloat(mutationChance.value.toString())
@@ -312,7 +343,7 @@ export default defineComponent({
           })).finally(() => {
         loading.value = false;
       });
-      selectedGeneration.value = 1;
+      selectedGeneration.value = generations.value.length;
 
       setOrderedLanders()
       renderMap(mapToRender);
@@ -344,7 +375,47 @@ export default defineComponent({
       initialVerticalSpeed.value = orderedActors.value[0].Lander.Situation.VerticalSpeed;
     }
 
+    function copyActions(index: number) {
+      let stacks: string[] = [];
+      for (const situation of orderedActors.value[index].Lander.Situations) {
+        stacks.push(`new[] {${situation.Rotation}, ${situation.Power}}\r\n`)
+      }
+      navigator.clipboard.writeText(stacks.toString());
+    }
+
+    async function calculateWeights() {
+      const map = getMapToRender();
+      loading.value = true;
+      await marsLanderApi.CalculateWeights(new CalculateWeightRequest({
+        Map: map,
+        OriginalWeights: new AiWeight({
+          HorizontalSpeedWeight: parseFloat(horizontalSpeedWeight.value.toString()),
+          VerticalSpeedWeight: parseFloat(verticalSpeedWeight.value.toString()),
+          RotationWeight: parseFloat(rotationWeight.value.toString()),
+          HorizontalDistanceWeight: parseFloat(horizontalDistanceWeight.value.toString()),
+          VerticalDistanceWeight: parseFloat(verticalDistanceWeight.value.toString()),
+          FuelWeight: parseFloat(fuelWeight.value.toString()),
+          ElitismBias: parseFloat(elitismBias.value.toString()),
+          BetterBias: parseFloat(betterBias.value.toString()),
+          BetterCutoff: parseFloat(betterCutoff.value.toString()),
+          MutationChance: parseFloat(mutationChance.value.toString())
+        }),
+        Parameters: new EvolutionParameters({
+          Generations: parseFloat(generationRequest.value.toString()),
+          Population: parseFloat(populationRequest.value.toString()),
+          Actions: parseFloat(maxActions.value.toString())
+        }),
+        ChangePerTry: 0.1,
+        DownwardTries: 10,
+        UpwardTries: 200
+      })).finally(() => {
+        loading.value = false;
+      })
+    }
+
     return {
+      calculateWeights,
+      copyActions,
       mapElements,
       selectedMap,
       onMapChange,
@@ -352,7 +423,10 @@ export default defineComponent({
       requestLanding,
       selectedGeneration,
       horizontalSpeedWeight,
-      horizontalCenterDistanceWeight,
+      horizontalDistanceWeight,
+      verticalDistanceWeight,
+      fuelWeight,
+      elitismBias,
       verticalSpeedWeight,
       rotationWeight,
       expandParams,
