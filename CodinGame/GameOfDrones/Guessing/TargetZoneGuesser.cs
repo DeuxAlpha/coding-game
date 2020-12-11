@@ -4,7 +4,7 @@ using CodinGame.GameOfDrones.Models;
 using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Maths;
-using CodinGame.Utilities.Maths.Structs;
+using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.GameOfDrones.Guessing
 {

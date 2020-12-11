@@ -1,5 +1,5 @@
 using CodinGame.Utilities.Maths;
-using CodinGame.Utilities.Maths.Structs;
+using CodinGame.Utilities.Maths.Models;
 using NUnit.Framework;
 
 namespace CodinGame.Tests.Maths

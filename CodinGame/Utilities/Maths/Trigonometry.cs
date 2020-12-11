@@ -1,9 +1,9 @@
 using System;
-using CodinGame.Utilities.Maths.Structs;
+using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.Utilities.Maths
 {
-    public class Trigonometry
+    public static partial class Trigonometry
     {
         public static double GetDistance(Point point1, Point point2)
         {
@@ -16,30 +16,10 @@ namespace CodinGame.Utilities.Maths
         {
             var xDistance = point1.X - point2.X;
             var yDistance = point1.Y - point2.Y;
-            var angle =  Math.Atan2(yDistance, xDistance) * 180.0 / Math.PI - 180;
+            var angle = Math.Atan2(yDistance, xDistance) * 180.0 / Math.PI - 180;
             if (angle < 0) return angle + 360;
             if (angle >= 360) return angle - 360;
             return angle;
-        }
-
-        /// <summary>Calculates the intersection of a line and a horizontal line at an arbitrary y-level.</summary>
-        public static double GetXIntersect(Point point1, Point point2, double yLevel)
-        {
-            var adjustedY1 = point1.Y - yLevel;
-            var adjustedY2 = point2.Y - yLevel;
-            var aboveInterceptTravelPercentage = Math.Abs(adjustedY2) / (Math.Abs(adjustedY2) + Math.Abs(adjustedY1));
-            var xIntercept = point1.X + (point2.X - point1.X) * aboveInterceptTravelPercentage;
-            return xIntercept;
-        }
-
-        /// <summary>Calculates the intersection of a line and a vertical line at an arbitrary x-level.</summary>
-        public static double GetYIntersect(Point point1, Point point2, double xLevel)
-        {
-            var adjustedX1 = point1.X - xLevel;
-            var adjustedX2 = point2.X - xLevel;
-            var aboveInterceptTravelPercentage = Math.Abs(adjustedX2) / (Math.Abs(adjustedX2) + Math.Abs(adjustedX1));
-            var yIntercept = point1.Y + (point2.Y - point1.Y) * aboveInterceptTravelPercentage;
-            return yIntercept;
         }
 
         /// <summary>Basically, where on a Y-Axis you would end up if you moved the X distance at a particular angle.</summary>
@@ -62,12 +42,18 @@ namespace CodinGame.Utilities.Maths
             return rounded;
         }
 
-        public static double GetHorizontalSpeedFraction(double angle, ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right, int decimals = 3)
+        public static double GetHorizontalSpeedFraction(
+            double angle,
+            ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right,
+            int decimals = 3)
         {
             return Math.Round(Math.Cos(ToRadians(angle + GetAdjustedAngle(zeroDegreesDirection))), decimals);
         }
 
-        public static double GetVerticalSpeedFraction(double angle, ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right, int decimals = 3)
+        public static double GetVerticalSpeedFraction(
+            double angle,
+            ZeroDegreesDirection zeroDegreesDirection = ZeroDegreesDirection.Right,
+            int decimals = 3)
         {
             return Math.Round(Math.Sin(ToRadians(angle + GetAdjustedAngle(zeroDegreesDirection))), decimals);
         }

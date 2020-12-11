@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Maths;
-using CodinGame.Utilities.Maths.Structs;
+using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.MarsLander
 {

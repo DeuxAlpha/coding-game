@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.Utilities.Maths;
-using CodinGame.Utilities.Maths.Structs;
+using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.GameOfDrones.Models.Zones
 {
