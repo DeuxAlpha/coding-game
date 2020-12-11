@@ -57,6 +57,8 @@ namespace CodinGame.Tests.Maths
         [TestCase(0, 0, 2, 0, 1, 0, 3, 0, IntersectionType.CollinearOverlapping, null, null)]
         [TestCase(10, 10, 20, -10, Double.SmallValue, 0, Double.BigValue, 0, IntersectionType.Point, 15, 0)]
         [TestCase(0, 5, 0, -5, -5, 0, 5, 0, IntersectionType.Point, 0, 0)]
+        [TestCase(3390.98, 1773.71, 3545.04, 1692.21, 3200, 1000, 3500, 2000, IntersectionType.Point, 0, 0)]
+        [TestCase(3373.8, 1712.67, 3512.22, 1632.61, 3200, 1000, 3500, 2000, IntersectionType.Point, 0, 0)]
         public void GetIntersections_ValidParameters_GetIntersection(
             double x1,
             double y1,

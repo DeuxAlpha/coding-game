@@ -11,6 +11,12 @@ namespace CodinGame.Utilities.Maths.Models
         private double? _dotProduct;
         public double DotProduct => GetDotProduct();
 
+        public Vector(double x1, double y1, double x2, double y2)
+        {
+            Point1 = new Point(x1, y1);
+            Point2 = new Point(x2, y2);
+        }
+
         public Vector(Point point1, Point point2)
         {
             Point1 = point1;

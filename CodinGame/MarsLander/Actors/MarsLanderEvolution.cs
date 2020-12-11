@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
 using CodinGame.MarsLander.TimeCheat;
+using CodinGame.Utilities.Extensions;
 using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Random;
 
@@ -184,39 +185,52 @@ namespace CodinGame.MarsLander.Actors
 
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
-            // TODO: Update scoring function.
-            // We need to sorta put distance and speed weights in relation of each other, meaning that, if we are far
-            // away from the landing zone, a high speed (into the right direction, of course) isn't actually that bad.
-            // However, a high speed when we are quite close to the landing zone is.
             if (actor.Lander.Status == LanderStatus.Landed)
                 return new GenerationActor
                 {
                     Lander = actor.Lander.Clone(),
                     Score = 0
                 };
+            var distanceFromFlatSurface = environment.GetDistanceFromFlatSurface(actor.Lander);
+            var horizontalDistance = distanceFromFlatSurface.HorizontalDistance;
+            var verticalDistance = distanceFromFlatSurface.VerticalDistance;
+            var horizontalSpeed = actor.Lander.Situation.HorizontalSpeed;
+            var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
+            var rotation = actor.Lander.Situation.Rotation;
+            var fuel = actor.Lander.Situation.Fuel;
+            if (horizontalDistance > 0 && horizontalSpeed < 0 ||
+                horizontalDistance < 0 && horizontalSpeed > 0)
+            {
+                // Discourage going into the wrong direction
+                return new GenerationActor
+                {
+                    Lander = actor.Lander.Clone(),
+                    Score = 100_000_000
+                };
+            }
+
             if (actor.Lander.Status == LanderStatus.Lost)
                 return new GenerationActor
                 {
                     Lander = actor.Lander.Clone(),
                     Score = 100_000
                 };
-            var distanceFromFlatSurface = environment.GetDistanceFromFlatSurface(actor.Lander);
-            var horizontalDistance = Math.Abs(distanceFromFlatSurface.HorizontalDistance);
-            var verticalDistance = Math.Abs(distanceFromFlatSurface.VerticalDistance);
-            var horizontalSpeed = Math.Abs(actor.Lander.Situation.HorizontalSpeed);
-            var verticalSpeed = Math.Abs(actor.Lander.Situation.VerticalSpeed);
-            var rotation = Math.Abs(actor.Lander.Situation.Rotation);
-            var fuel = actor.Lander.Situation.Fuel;
+
+            // TODO: Need to adjust this.
+            var horizontalDistanceToSpeed = (Math.Abs(horizontalDistance) + Math.Abs(horizontalSpeed)) * 100;
+            if (!horizontalDistance.IsZero() && !horizontalSpeed.IsZero())
+                horizontalDistanceToSpeed = horizontalDistance / horizontalSpeed;
             return new GenerationActor
             {
                 Lander = actor.Lander.Clone(),
                 Score =
-                    horizontalDistance * _aiWeight.HorizontalDistanceWeight +
-                    verticalDistance * _aiWeight.VerticalDistanceWeight +
-                    horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
-                    verticalSpeed * _aiWeight.VerticalSpeedWeight +
-                    rotation * _aiWeight.RotationWeight +
-                    fuel * _aiWeight.FuelWeight
+                    Math.Abs(horizontalDistance) * _aiWeight.HorizontalDistanceWeight +
+                    Math.Abs(verticalDistance) * _aiWeight.VerticalDistanceWeight +
+                    Math.Abs(horizontalSpeed) * _aiWeight.HorizontalSpeedWeight +
+                    Math.Abs(verticalSpeed) * _aiWeight.VerticalSpeedWeight +
+                    Math.Abs(rotation) * _aiWeight.RotationWeight +
+                    Math.Abs(fuel) * _aiWeight.FuelWeight +
+                    Math.Abs(horizontalDistanceToSpeed) * _aiWeight.HorizontalDistanceToSpeedWeight
             };
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Enums;
 using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.MarsLander
@@ -33,14 +34,30 @@ namespace CodinGame.MarsLander
 
         public bool LanderCrashedThroughGround(Lander lander)
         {
-            var previousSituation = lander.Situations.Last();
-            var angle = Trigonometry.GetAngle(
-                new Point(previousSituation.X, previousSituation.Y),
-                new Point(lander.Situation.X, lander.Situation.Y));
+            var previousSituation = lander.Situations
+                .LastOrDefault(situation => Math.Abs(situation.X - lander.Situation.X) > 0.001 &&
+                                            Math.Abs(situation.Y - lander.Situation.Y) > 0.001);
+            if (previousSituation == null) return false;
             var enteredZones = _surfaceZones
-                .Where(zone => zone.LeftX >= previousSituation.X && zone.RightX < lander.Situation.X)
+                .Where(zone => zone.LeftX <= previousSituation.X && zone.RightX > previousSituation.X ||
+                               zone.LeftX <= lander.Situation.X && zone.RightX > lander.Situation.X)
                 .ToList();
-            var currentY = previousSituation.Y;
+            foreach (var enteredZone in enteredZones)
+            {
+                if (enteredZone.LeftY < lander.Situation.Y && enteredZone.LeftY < previousSituation.Y &&
+                    enteredZone.RightY < lander.Situation.Y && enteredZone.RightY < previousSituation.Y)
+                    continue;
+                var landerVector = new Vector(
+                    new Point(previousSituation.X, previousSituation.Y),
+                    new Point(lander.Situation.X,lander.Situation.Y));
+                var zoneVector = new Vector(
+                    enteredZone.LeftX,
+                    enteredZone.LeftY,
+                    enteredZone.RightX,
+                    enteredZone.RightY);
+                if (Trigonometry.GetIntersection(landerVector, zoneVector).IntersectionType != IntersectionType.None)
+                    return true;
+            }
 
             return false;
         }
@@ -119,7 +136,7 @@ namespace CodinGame.MarsLander
 
             if (side == Side.Right)
             {
-                horizontalDistance = lander.Situation.X - _landingZone.RightX;
+                horizontalDistance = _landingZone.RightX - lander.Situation.X;
                 fullDistance = Trigonometry.GetDistance(
                     new Point(_landingZone.RightX, _landingZone.RightY),
                     new Point(lander.Situation.X, lander.Situation.Y));

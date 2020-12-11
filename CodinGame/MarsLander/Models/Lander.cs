@@ -119,26 +119,13 @@ namespace CodinGame.MarsLander.Models
         {
             if (Status != LanderStatus.Flying) return;
 
-            var previousSituation = Situations.LastOrDefault();
-            if (previousSituation == null)
-            {
-                Status = LanderStatus.Flying;
-                return;
-            }
-
             if (MarsLanderEnvironment.IsLanderLost(this))
             {
                 Status = LanderStatus.Lost;
                 return;
             }
 
-            // TODO: THIS IS THE MAIN THING TO DO: In the canyon level, the lander just flies through the ground.
-            // TODO: We also need to create a quick function, then, to see if we crashed through a zone/surface element
-            // Since we are not using the previous situation to actually calculate what we might have passed through
-            // (We are only checking if we are under the surface (NOW), rather than if we have been at any point.
-            // E.g. moving through something like this '/\' is entirely possible.
-
-            // Using new way to check if we crashed into the ground.
+            // TODO: We set Landed in here even though in CodinGame we crash.
             if (!environment.LanderCrashedThroughGround(this))
             {
                 Status = LanderStatus.Flying;
