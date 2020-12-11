@@ -10,7 +10,7 @@ namespace CodinGame.MarsLander.Actors
     public class MarsLanderActor
     {
         public Lander Lander { get; private set; }
-        private Lander Original { get; }
+        public Lander Original { get; }
         private readonly MarsLanderEnvironment _environment;
 
         public MarsLanderActor(Lander lander, MarsLanderEnvironment environment)

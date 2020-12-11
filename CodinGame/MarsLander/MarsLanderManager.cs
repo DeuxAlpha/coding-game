@@ -20,6 +20,10 @@ namespace CodinGame.MarsLander
                 var landX = int.Parse(inputs[0]);
                 // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
                 var landY = int.Parse(inputs[1]);
+                Console.Error.WriteLine(new
+                {
+                    landX, landY
+                });
                 // if (leftX == null)
                 // {
                 // leftX = landX;
@@ -61,21 +65,18 @@ namespace CodinGame.MarsLander
         {
             return new Queue<int[]>(new[]
             {
-                new[] {0, 0}, new[] {0, 1}, new[] {-3, 2}, new[] {-6, 2}, new[] {-10, 1}, new[] {-12, 1},
-                new[] {-15, 1}, new[] {-11, 2}, new[] {-16, 2}, new[] {-20, 2}, new[] {-27, 3}, new[] {-25, 3},
-                new[] {-29, 3}, new[] {-28, 3}, new[] {-33, 4}, new[] {-30, 4}, new[] {-32, 4}, new[] {-31, 4},
-                new[] {-28, 4}, new[] {-27, 4}, new[] {-18, 4}, new[] {-16, 4}, new[] {-11, 4}, new[] {-11, 4},
-                new[] {-11, 4}, new[] {-11, 4}, new[] {-9, 4}, new[] {-7, 4}, new[] {-10, 4}, new[] {-13, 4},
-                new[] {-13, 4}, new[] {-28, 4}, new[] {-25, 4}, new[] {-23, 4}, new[] {-25, 4}, new[] {-24, 4},
-                new[] {-26, 4}, new[] {-20, 4}, new[] {-16, 4}, new[] {-11, 4}, new[] {-11, 4}, new[] {-9, 4},
-                new[] {-21, 4}, new[] {-12, 4}, new[] {-6, 4}, new[] {-4, 4}, new[] {-3, 4}, new[] {-2, 4},
-                new[] {2, 4}, new[] {10, 4}, new[] {3, 4}, new[] {2, 4}, new[] {9, 4}, new[] {15, 4}, new[] {22, 4},
-                new[] {28, 4}, new[] {38, 4}, new[] {48, 4}, new[] {56, 4}, new[] {54, 4}, new[] {51, 4}, new[] {42, 4},
-                new[] {49, 4}, new[] {48, 4}, new[] {57, 4}, new[] {53, 4}, new[] {52, 4}, new[] {42, 4}, new[] {32, 3},
-                new[] {18, 3}, new[] {12, 4}, new[] {10, 4}, new[] {11, 4}, new[] {-1, 4}, new[] {-13, 4},
-                new[] {-14, 4}, new[] {-20, 4}, new[] {-12, 4}, new[] {-15, 4}, new[] {-23, 3}, new[] {-23, 4},
-                new[] {-29, 4}, new[] {-28, 4}, new[] {-17, 4}, new[] {-29, 3}, new[] {-26, 4}, new[] {-14, 4},
-                new[] {-22, 4}, new[] {-10, 4}, new[] {0, 4}
+                new[] {-82, 0}, new[] {-75, 0}, new[] {-68, 0}, new[] {-57, 1}, new[] {-45, 2}, new[] {-39, 3},
+                new[] {-34, 3}, new[] {-28, 3}, new[] {-16, 4}, new[] {-18, 4}, new[] {-17, 4}, new[] {-5, 4},
+                new[] {-6, 4}, new[] {8, 4}, new[] {14, 4}, new[] {23, 4}, new[] {21, 4}, new[] {27, 4}, new[] {31, 4},
+                new[] {41, 4}, new[] {36, 4}, new[] {42, 4}, new[] {44, 4}, new[] {44, 4}, new[] {39, 4}, new[] {37, 4},
+                new[] {40, 4}, new[] {37, 4}, new[] {34, 4}, new[] {45, 3}, new[] {51, 4}, new[] {51, 4}, new[] {39, 4},
+                new[] {31, 4}, new[] {31, 4}, new[] {41, 3}, new[] {37, 4}, new[] {41, 4}, new[] {43, 4}, new[] {45, 4},
+                new[] {44, 4}, new[] {41, 4}, new[] {38, 4}, new[] {36, 4}, new[] {34, 4}, new[] {26, 4}, new[] {30, 3},
+                new[] {28, 3}, new[] {31, 4}, new[] {23, 4}, new[] {25, 4}, new[] {15, 4}, new[] {28, 4}, new[] {28, 4},
+                new[] {17, 4}, new[] {17, 4}, new[] {10, 3}, new[] {13, 4}, new[] {11, 4}, new[] {24, 4}, new[] {25, 4},
+                new[] {13, 3}, new[] {16, 4}, new[] {30, 4}, new[] {26, 3}, new[] {12, 4}, new[] {6, 4}, new[] {-1, 4},
+                new[] {-3, 4}, new[] {-1, 4}, new[] {0, 4}, new[] {3, 4}, new[] {3, 4}, new[] {-6, 4}, new[] {-8, 4},
+                new[] {-2, 4}, new[] {3, 4}, new[] {-3, 4}, new[] {0, 4}, new[] {0, 4}, new[] {0, 4}
             });
         }
     }

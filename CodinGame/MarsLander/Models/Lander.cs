@@ -36,6 +36,36 @@ namespace CodinGame.MarsLander.Models
             return clone;
         }
 
+        public string GetApplicableAction(string desiredAction)
+        {
+            var actionArray = desiredAction.Split(" ");
+            var desiredRotation = int.Parse(actionArray[0]);
+            var desiredPower = int.Parse(actionArray[1]);
+            if (Math.Abs(Situation.Rotation - desiredRotation) > MarsLanderRules.MaxAngleChange)
+            {
+                if (desiredRotation > Situation.Rotation)
+                    desiredRotation = Situation.Rotation + MarsLanderRules.MaxAngleChange;
+                else
+                    desiredRotation = Situation.Rotation - MarsLanderRules.MaxAngleChange;
+            }
+
+            if (Math.Abs(Situation.Power - desiredPower) > MarsLanderRules.MaxPowerChange)
+            {
+                if (desiredPower > Situation.Power)
+                    desiredPower = Situation.Power + MarsLanderRules.MaxPowerChange;
+                else
+                    desiredPower = Situation.Power - MarsLanderRules.MaxPowerChange;
+            }
+
+            return $"{desiredRotation} {desiredPower}";
+        }
+
+        public void Apply(string action, MarsLanderEnvironment environment)
+        {
+            var actionArray = action.Split(" ");
+            Apply(int.Parse(actionArray[0]), int.Parse(actionArray[1]), environment);
+        }
+
         public void Apply(int rotationChange, int powerChange, MarsLanderEnvironment environment)
         {
             if (Status != LanderStatus.Flying) return;
@@ -73,8 +103,8 @@ namespace CodinGame.MarsLander.Models
 
         public bool WillHitLandingZone(MarsLanderEnvironment environment, int withinTheseTurns = 5)
         {
-            var landingZone = environment.GetLandingZone();
             var puppet = Clone();
+            var landingZone = environment.GetLandingZone();
             var turns = 0;
             while (puppet.Status == LanderStatus.Flying && turns < withinTheseTurns)
             {
@@ -86,21 +116,6 @@ namespace CodinGame.MarsLander.Models
             return puppet.Situation.X >= landingZone.LeftX && puppet.Situation.X < landingZone.RightX;
         }
 
-
-        public string LimitMomentum()
-        {
-            var puppet = Clone();
-            var currentAngle = Trigonometry.GetAngle(Situation.X, Situation.Y, Situation.X + Situation.HorizontalSpeed,
-                Situation.Y + Situation.VerticalSpeed);
-            var oppositeAngle = currentAngle - 270; // Right is -90 in game, Left is 90
-            var currentSpeed = Trigonometry.GetDistance(Situation.X, Situation.Y,
-                Situation.X + Situation.HorizontalSpeed, Situation.Y + Situation.VerticalSpeed);
-            var speed = 0;
-            if (oppositeAngle >= 0 && Situation.Rotation >= 0 || oppositeAngle <= 0 && Situation.Rotation <= 0)
-                speed = 4;
-
-            return $"{(int) Math.Round(oppositeAngle)} {speed}";
-        }
 
         private void SetStatus(MarsLanderEnvironment environment)
         {
@@ -119,6 +134,7 @@ namespace CodinGame.MarsLander.Models
                 return;
             }
 
+            // TODO: THIS IS THE MAIN THING TO DO: In the canyon level, the lander just flies through the ground.
             // TODO: We also need to create a quick function, then, to see if we crashed through a zone/surface element
             // Since we are not using the previous situation to actually calculate what we might have passed through
             // (We are only checking if we are under the surface (NOW), rather than if we have been at any point.
@@ -137,7 +153,7 @@ namespace CodinGame.MarsLander.Models
                 return;
             }
 
-            if (Situation.Rotation > MarsLanderRules.MaxLandingAngle ||
+            if (Math.Abs(Situation.Rotation) > MarsLanderRules.MaxLandingAngle ||
                 Math.Abs(Situation.VerticalSpeed) > MarsLanderRules.MaxVerticalLandingSpeed ||
                 Math.Abs(Situation.HorizontalSpeed) > MarsLanderRules.MaxHorizontalLandingSpeed)
             {

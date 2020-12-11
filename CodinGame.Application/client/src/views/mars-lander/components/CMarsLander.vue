@@ -380,6 +380,7 @@ export default defineComponent({
       for (const situation of orderedActors.value[index].Lander.Situations) {
         stacks.push(`new[] {${situation.Rotation}, ${situation.Power}}\r\n`)
       }
+      stacks.push(`new[] {${orderedActors.value[index].Lander.Situation.Rotation}, ${orderedActors.value[index].Lander.Situation.Power}}\r\n`)
       navigator.clipboard.writeText(stacks.toString());
     }
 

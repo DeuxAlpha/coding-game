@@ -72,7 +72,14 @@ namespace CodinGame.MarsLander.Actors
 
             for (var eliteIndex = 0; eliteIndex < elitismCount; eliteIndex++)
             {
-                UpdateActor(eliteIndex, actorAndScoreList[eliteIndex].Lander.Actions);
+                if (MaxActions != null && MaxActions > 0)
+                {
+                    UpdateActor(eliteIndex, actorAndScoreList[eliteIndex].Lander.Actions.Take((int) MaxActions));
+                }
+                else
+                {
+                    UpdateActor(eliteIndex, actorAndScoreList[eliteIndex].Lander.Actions);
+                }
             }
 
             for (var actorIndex = 0 + elitismCount; actorIndex < Actors.Count; actorIndex += 2)
@@ -85,7 +92,7 @@ namespace CodinGame.MarsLander.Actors
                     : secondParent.Lander.Actions.Count;
                 for (var childIndex = 0; childIndex < 2; childIndex++)
                 {
-                    var childPuppet = new MarsLanderActor(firstParent.Lander, _environment);
+                    var childPuppet = Actors.First().Original.Clone();
                     var childActions = new List<string>();
                     for (var actionIndex = 0;
                         actionIndex < moreParentActionCount && actionIndex < (MaxActions ?? int.MaxValue);
@@ -142,16 +149,12 @@ namespace CodinGame.MarsLander.Actors
                             }
                         }
 
-                        childPuppet.ApplyAction(childAction);
+                        childPuppet.Apply(childAction, _environment);
                         childActions.Add(childAction);
-                        // TODO: There's something fishy going on here.
-                        // It seems like the last action to land is broken.
-                        // Landers are stopping over the actual Y coordinates.
-                        // And the last action does not get applied (e.g. 0 1 below)
-                        // Also, some landers think the landed successfully even though their rotation is wrong.
-                        if (!childPuppet.Lander.WillHitLandingZone(_environment, 1)) continue;
-                        childPuppet.ApplyAction("0 1");
-                        childActions.Add("0 1");
+                        if (!childPuppet.WillHitLandingZone(_environment, 1) || MaxActions != null) continue;
+                        var applicableAction = childPuppet.GetApplicableAction("0 4");
+                        childPuppet.Apply(applicableAction, _environment);
+                        childActions.Add(applicableAction);
                         break;
                     }
 
@@ -181,11 +184,21 @@ namespace CodinGame.MarsLander.Actors
 
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
         {
+            // TODO: Update scoring function.
+            // We need to sorta put distance and speed weights in relation of each other, meaning that, if we are far
+            // away from the landing zone, a high speed (into the right direction, of course) isn't actually that bad.
+            // However, a high speed when we are quite close to the landing zone is.
             if (actor.Lander.Status == LanderStatus.Landed)
                 return new GenerationActor
                 {
                     Lander = actor.Lander.Clone(),
                     Score = 0
+                };
+            if (actor.Lander.Status == LanderStatus.Lost)
+                return new GenerationActor
+                {
+                    Lander = actor.Lander.Clone(),
+                    Score = 100_000
                 };
             var distanceFromFlatSurface = environment.GetDistanceFromFlatSurface(actor.Lander);
             var horizontalDistance = Math.Abs(distanceFromFlatSurface.HorizontalDistance);
@@ -194,29 +207,6 @@ namespace CodinGame.MarsLander.Actors
             var verticalSpeed = Math.Abs(actor.Lander.Situation.VerticalSpeed);
             var rotation = Math.Abs(actor.Lander.Situation.Rotation);
             var fuel = actor.Lander.Situation.Fuel;
-            // TODO: Need to figure out when to apply which scoring method.
-            // if (distanceFromFlatSurface.HorizontalDistance > 0)
-            // {
-                // We want to first and foremost get to the landing zone. We can worry about speed and rotation after.
-                // For that reason, we are going to return a very low score if we didn't even make it to the landing zone.
-                // return new GenerationActor
-                // {
-                    // Lander = actor.Lander.Clone(),
-                    // Score = distanceFromFlatSurface.HorizontalDistance * _aiWeight.HorizontalDistanceWeight +
-                            // horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
-                            // verticalSpeed * _aiWeight.VerticalSpeedWeight +
-                            // rotation * _aiWeight.RotationWeight
-                // };
-            // }
-
-            // return new GenerationActor
-            // {
-                // Lander = actor.Lander.Clone(),
-                // Score =
-                    // horizontalSpeed * _aiWeight.HorizontalSpeedWeight +
-                    // verticalSpeed * _aiWeight.VerticalSpeedWeight +
-                    // rotation * _aiWeight.RotationWeight
-            // };
             return new GenerationActor
             {
                 Lander = actor.Lander.Clone(),

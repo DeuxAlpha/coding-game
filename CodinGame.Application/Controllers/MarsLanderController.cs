@@ -70,7 +70,8 @@ namespace CodinGame.Application.Controllers
             var highestScore = evolution.Generations
                 .SelectMany(generation => generation.Actors)
                 .Select(actor => actor.Score)
-                .OrderBy(score => score);
+                .OrderBy(score => score)
+                .First();
             _logger.LogInformation("{elapsed}", sw.Elapsed);
             _logger.LogInformation("Highest Score: {@score}", highestScore);
 

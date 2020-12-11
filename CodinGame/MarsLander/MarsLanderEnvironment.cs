@@ -9,9 +9,9 @@ namespace CodinGame.MarsLander
 {
     public class MarsLanderEnvironment
     {
-        private List<SurfaceZone> _surfaceZones;
+        private readonly List<SurfaceZone> _surfaceZones;
 
-        private List<SurfaceElement> _surfaceElements;
+        private readonly List<SurfaceElement> _surfaceElements;
 
         // Might have to update this in case there might be more than one landing zone.
         private SurfaceZone _landingZone;
@@ -33,7 +33,8 @@ namespace CodinGame.MarsLander
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
         public double GetDistanceFromSurface(Lander lander)
         {
-            return lander.Situation.Y - _surfaceElements.ElementAtOrDefault((int) lander.Situation.X)?.Y ?? double.MinValue;
+            if (lander.Situation.X < 0 || lander.Situation.X > MarsLanderRules.Width) return double.MaxValue;
+            return lander.Situation.Y - _surfaceElements[(int) Math.Round(lander.Situation.X)].Y;
         }
 
         /// <summary>Getting distance from the surface directly under the lander, but we don't need to find the surface
@@ -68,7 +69,7 @@ namespace CodinGame.MarsLander
         /// <summary>Checks if lander is moving outside of map.</summary>
         public static bool IsLanderLost(Lander lander)
         {
-            return lander.Situation.X < 0 || lander.Situation.X > MarsLanderRules.Width;
+            return lander.Situation.X < 0 || lander.Situation.X > MarsLanderRules.Width - 1;
         }
 
         public Distance GetDistanceFromFlatSurfaceCenter(Lander lander)
@@ -126,18 +127,6 @@ namespace CodinGame.MarsLander
                 VerticalDistance = lander.Situation.Y - _landingZone.LeftY, // Y is the same everywhere in the landing zone.
                 FullDistance = fullDistance
             };
-        }
-
-        public string GetPotentialWinActions(Lander lander)
-        {
-            var puppet = lander.Clone();
-            puppet.LimitMomentum();
-            var distanceFromFlatSurface = GetDistanceFromFlatSurface(puppet);
-            if (Math.Abs(distanceFromFlatSurface.HorizontalDistance) > 0)
-                return null;
-            if (Math.Abs(distanceFromFlatSurface.VerticalDistance) < 50)
-                return "0 4";
-            return puppet.LimitMomentum();
         }
 
         /// <summary>Returns the landing zone. In other words, returns the left and right surface elements that make out
