@@ -1,4 +1,5 @@
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 using NUnit.Framework;
 
 namespace CodinGame.Tests.Maths
@@ -18,7 +19,7 @@ namespace CodinGame.Tests.Maths
             double yLevel,
             double expectedResult)
         {
-            Assert.That(Trigonometry.GetXIntersect(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
+            Assert.That(Trigonometry.GetXIntersect(new Point{X = x1,Y = y1}, new Point {X = x2, Y = y2}, yLevel), Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -34,7 +35,7 @@ namespace CodinGame.Tests.Maths
             double yLevel,
             double expectedResult)
         {
-            Assert.That(Trigonometry.GetYIntersect(x1, y1, x2, y2, yLevel), Is.EqualTo(expectedResult));
+            Assert.That(Trigonometry.GetYIntersect(new Point(x1, y1), new Point(x2, y2), yLevel), Is.EqualTo(expectedResult));
         }
     }
 }

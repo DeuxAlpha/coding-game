@@ -13,7 +13,6 @@ namespace CodinGame.MarsLander.Models
         public List<Situation> Situations { get; set; } = new List<Situation>();
         public List<string> Actions { get; private set; } = new List<string>();
         public LanderStatus Status { get; private set; }
-        private SurfaceZone _currentSurface;
 
         public Lander Clone()
         {
@@ -87,7 +86,6 @@ namespace CodinGame.MarsLander.Models
             Situation.X += Situation.HorizontalSpeed;
             Situation.Y += Situation.VerticalSpeed;
             RoundValues();
-            UpdateSurfaces(environment);
             Situations.Add(Situation.Clone());
             Actions.Add($"{rotationChange} {powerChange}");
             SetStatus(environment);
@@ -139,7 +137,9 @@ namespace CodinGame.MarsLander.Models
             // Since we are not using the previous situation to actually calculate what we might have passed through
             // (We are only checking if we are under the surface (NOW), rather than if we have been at any point.
             // E.g. moving through something like this '/\' is entirely possible.
-            if (environment.GetDistanceFromSurface(this) > 0)
+
+            // Using new way to check if we crashed into the ground.
+            if (!environment.LanderCrashedThroughGround(this))
             {
                 Status = LanderStatus.Flying;
                 return;
@@ -162,15 +162,6 @@ namespace CodinGame.MarsLander.Models
             }
 
             Status = LanderStatus.Landed;
-        }
-
-        private void UpdateSurfaces(MarsLanderEnvironment environment)
-        {
-            // Check if we even need to update the surfaces.
-            if (_currentSurface?.LeftX <= Situation.X && _currentSurface?.RightX < Situation.X) return;
-            // We might think that we just move left or right to the next surface elements, but there's a chance that
-            // the lander skipped several zones at once, so we need to analyze the entire zone again.
-            _currentSurface = environment.GetCurrentSurface(this);
         }
 
         private int LimitPower(int powerChange)

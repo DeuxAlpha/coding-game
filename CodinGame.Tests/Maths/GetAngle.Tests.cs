@@ -1,4 +1,5 @@
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 using NUnit.Framework;
 
 namespace CodinGame.Tests.Maths
@@ -17,7 +18,17 @@ namespace CodinGame.Tests.Maths
         [TestCase(0, 0, 3, -3, 315)]
         public void GetAngle_ValidParameters_ReturnsAngle(int x1, int y1, int x2, int y2, double expectedAngle)
         {
-            Assert.That(Trigonometry.GetAngle(x1, y1, x2, y2), Is.EqualTo(expectedAngle));
+            var point1 = new Point
+            {
+                X = x1,
+                Y = y1
+            };
+            var point2 = new Point
+            {
+                X = x2,
+                Y = y2
+            };
+            Assert.That(Trigonometry.GetAngle(point1, point2), Is.EqualTo(expectedAngle));
         }
     }
 }

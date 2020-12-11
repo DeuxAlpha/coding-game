@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.MarsLander.Models
 {
@@ -24,7 +25,7 @@ namespace CodinGame.MarsLander.Models
             LeftY = leftY;
             RightX = rightX;
             RightY = rightY;
-            Angle = Trigonometry.GetAngle(LeftX, LeftY, RightX, RightY);
+            Angle = Trigonometry.GetAngle(new Point(LeftX, LeftY), new Point(RightX, RightY));
             SurfaceElements = new List<SurfaceElement>();
             for (var x = leftX; x < rightX; x++)
             {

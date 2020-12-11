@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.MarsLander
 {
@@ -30,6 +31,20 @@ namespace CodinGame.MarsLander
             _centerLandingZoneX = (_landingZone.LeftX + _landingZone.RightX) / 2;
         }
 
+        public bool LanderCrashedThroughGround(Lander lander)
+        {
+            var previousSituation = lander.Situations.Last();
+            var angle = Trigonometry.GetAngle(
+                new Point(previousSituation.X, previousSituation.Y),
+                new Point(lander.Situation.X, lander.Situation.Y));
+            var enteredZones = _surfaceZones
+                .Where(zone => zone.LeftX >= previousSituation.X && zone.RightX < lander.Situation.X)
+                .ToList();
+            var currentY = previousSituation.Y;
+
+            return false;
+        }
+
         /// <summary>Getting the distance from the surface directly under the lander.</summary>
         public double GetDistanceFromSurface(Lander lander)
         {
@@ -44,7 +59,7 @@ namespace CodinGame.MarsLander
             if (rightZone == null || leftZone == null)
                 return int.MaxValue;
             var zoneAngle = Trigonometry
-                .GetAngle(leftZone.LeftX, leftZone.LeftY, rightZone.LeftX, rightZone.LeftY);
+                .GetAngle(new Point(leftZone.LeftX, leftZone.LeftY), new Point(rightZone.LeftX, rightZone.LeftY));
             var landerXInZone = lander.Situation.X - leftZone.LeftX;
             var surfaceYPosition = leftZone.LeftY +
                                    Math.Round(Trigonometry.GetNewYPosition(zoneAngle, landerXInZone));
@@ -56,7 +71,7 @@ namespace CodinGame.MarsLander
             if (lander.Situation.X < 0) return null;
             if (lander.Situation.X > MarsLanderRules.Width) return null;
             return _surfaceZones
-                .Last(element => element.LeftX <= lander.Situation.X && element.RightX > lander.Situation.X);
+                .LastOrDefault(element => element.LeftX <= lander.Situation.X && element.RightX > lander.Situation.X);
         }
 
         public SurfaceZone GetRightCurrentSurface(Lander lander)
@@ -80,7 +95,9 @@ namespace CodinGame.MarsLander
                 HorizontalDistance = Math.Abs(lander.Situation.X - _centerLandingZoneX),
                 VerticalDistance = Math.Abs(lander.Situation.Y - _landingZone.LeftY),
                 FullDistance =
-                    Trigonometry.GetDistance(_centerLandingZoneX, _landingZone.LeftY, lander.Situation.X, lander.Situation.Y)
+                    Trigonometry.GetDistance(
+                        new Point(_centerLandingZoneX, _landingZone.LeftY),
+                        new Point(lander.Situation.X, lander.Situation.Y))
             };
         }
 
@@ -96,35 +113,32 @@ namespace CodinGame.MarsLander
             {
                 horizontalDistance = _landingZone.LeftX - lander.Situation.X;
                 fullDistance = Trigonometry.GetDistance(
-                    _landingZone.LeftX,
-                    _landingZone.LeftY,
-                    lander.Situation.X,
-                    lander.Situation.Y);
+                    new Point(_landingZone.LeftX, _landingZone.LeftY),
+                    new Point(lander.Situation.X, lander.Situation.Y));
             }
 
             if (side == Side.Right)
             {
                 horizontalDistance = lander.Situation.X - _landingZone.RightX;
                 fullDistance = Trigonometry.GetDistance(
-                    _landingZone.RightX,
-                    _landingZone.RightY,
-                    lander.Situation.X,
-                    lander.Situation.Y);
+                    new Point(_landingZone.RightX, _landingZone.RightY),
+                    new Point(lander.Situation.X, lander.Situation.Y));
             }
 
             if (side == Side.Above)
             {
                 fullDistance = Trigonometry.GetDistance(
-                    lander.Situation.X, // We are above, so we do not need to move to the left or right.
-                    _landingZone.LeftY, // Y is the same everywhere in the landing zone.
-                    lander.Situation.X,
-                    lander.Situation.Y);
+                    new Point(lander.Situation.X, // We are above, so we do not need to move to the left or right.
+                        _landingZone.LeftY), // Y is the same everywhere in the landing zone.
+                    new Point(lander.Situation.X,
+                        lander.Situation.Y));
             }
 
             return new Distance
             {
                 HorizontalDistance = horizontalDistance,
-                VerticalDistance = lander.Situation.Y - _landingZone.LeftY, // Y is the same everywhere in the landing zone.
+                VerticalDistance =
+                    lander.Situation.Y - _landingZone.LeftY, // Y is the same everywhere in the landing zone.
                 FullDistance = fullDistance
             };
         }

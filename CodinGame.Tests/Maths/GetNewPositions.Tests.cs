@@ -9,10 +9,10 @@ namespace CodinGame.Tests.Maths
         [Test]
         [TestCase(60, 0.5, 0.866)]
         [TestCase(30, 0.866, 0.5)]
-        [TestCase(341, 1542, -531)]
-        public void GetYPosition_ValidParameters_ReturnsValidYPosition(double angle, double xLength, double yResult)
+        [TestCase(341, 1542, -531, 0)]
+        public void GetYPosition_ValidParameters_ReturnsValidYPosition(double angle, double xLength, double yResult, int decimals = 3)
         {
-            Assert.That(Trigonometry.GetNewYPosition(angle, xLength), Is.EqualTo(yResult));
+            Assert.That(Trigonometry.GetNewYPosition(angle, xLength, decimals), Is.EqualTo(yResult));
         }
 
         [Test]

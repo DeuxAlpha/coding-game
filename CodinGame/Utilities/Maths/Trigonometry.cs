@@ -1,20 +1,21 @@
 using System;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.Utilities.Maths
 {
-    partial class Trigonometry
+    public class Trigonometry
     {
-        public static double GetDistance(double x1, double y1, double x2, double y2)
+        public static double GetDistance(Point point1, Point point2)
         {
-            var xDistance = x1 - x2;
-            var yDistance = y1 - y2;
+            var xDistance = point1.X - point2.X;
+            var yDistance = point1.Y - point2.Y;
             return Math.Sqrt(xDistance * xDistance + yDistance * yDistance);
         }
 
-        public static double GetAngle(double x1, double y1, double x2, double y2)
+        public static double GetAngle(Point point1, Point point2)
         {
-            var xDistance = x1 - x2;
-            var yDistance = y1 - y2;
+            var xDistance = point1.X - point2.X;
+            var yDistance = point1.Y - point2.Y;
             var angle =  Math.Atan2(yDistance, xDistance) * 180.0 / Math.PI - 180;
             if (angle < 0) return angle + 360;
             if (angle >= 360) return angle - 360;
@@ -22,22 +23,22 @@ namespace CodinGame.Utilities.Maths
         }
 
         /// <summary>Calculates the intersection of a line and a horizontal line at an arbitrary y-level.</summary>
-        public static double GetXIntersect(double x1, double y1, double x2, double y2, double yLevel)
+        public static double GetXIntersect(Point point1, Point point2, double yLevel)
         {
-            var adjustedY1 = y1 - yLevel;
-            var adjustedY2 = y2 - yLevel;
+            var adjustedY1 = point1.Y - yLevel;
+            var adjustedY2 = point2.Y - yLevel;
             var aboveInterceptTravelPercentage = Math.Abs(adjustedY2) / (Math.Abs(adjustedY2) + Math.Abs(adjustedY1));
-            var xIntercept = x1 + (x2 - x1) * aboveInterceptTravelPercentage;
+            var xIntercept = point1.X + (point2.X - point1.X) * aboveInterceptTravelPercentage;
             return xIntercept;
         }
 
         /// <summary>Calculates the intersection of a line and a vertical line at an arbitrary x-level.</summary>
-        public static double GetYIntersect(double x1, double y1, double x2, double y2, double xLevel)
+        public static double GetYIntersect(Point point1, Point point2, double xLevel)
         {
-            var adjustedX1 = x1 - xLevel;
-            var adjustedX2 = x2 - xLevel;
+            var adjustedX1 = point1.X - xLevel;
+            var adjustedX2 = point2.X - xLevel;
             var aboveInterceptTravelPercentage = Math.Abs(adjustedX2) / (Math.Abs(adjustedX2) + Math.Abs(adjustedX1));
-            var yIntercept = y1 + (y2 - y1) * aboveInterceptTravelPercentage;
+            var yIntercept = point1.Y + (point2.Y - point1.Y) * aboveInterceptTravelPercentage;
             return yIntercept;
         }
 

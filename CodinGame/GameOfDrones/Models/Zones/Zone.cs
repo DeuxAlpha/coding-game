@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.GameOfDrones.Models.Zones
 {
@@ -17,7 +18,9 @@ namespace CodinGame.GameOfDrones.Models.Zones
             return GameOfDronesManager.Participants
                 .SelectMany(participant => participant.Drones
                     .Where(drone =>
-                        Trigonometry.GetDistance(drone.Location.X, drone.Location.Y, Center.X, Center.Y) <
+                        Trigonometry.GetDistance(
+                            new Point(drone.Location.X, drone.Location.Y),
+                            new Point(Center.X, Center.Y)) <
                         GameOfDronesManager.ZoneRadius));
         }
     }

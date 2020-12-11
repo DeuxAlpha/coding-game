@@ -6,6 +6,7 @@ using CodinGame.GameOfDrones.Models.Drones;
 using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.GameOfDrones
 {
@@ -24,10 +25,8 @@ namespace CodinGame.GameOfDrones
                         .Select(participant => participant.Drones
                             .Count(drone =>
                                 Trigonometry.GetDistance(
-                                    drone.Location.X,
-                                    drone.Location.Y,
-                                    zone.Center.X,
-                                    zone.Center.Y)
+                                    new Point(drone.Location.X, drone.Location.Y),
+                                    new Point(zone.Center.X, zone.Center.Y))
                                 <= GameOfDronesManager.ZoneRadius))
                         .OrderByDescending(count => count)
                         .First()
@@ -52,13 +51,15 @@ namespace CodinGame.GameOfDrones
             var zonesWithDistance = availableZones
                 .Where(zone => zone.OwnerId != GameOfDronesManager.PlayerId)
                 .Select(zone => new
-            {
-                zone.Center.X,
-                zone.Center.Y,
-                zone.OwnerId,
-                DistanceToCurrentDrone =
-                    Trigonometry.GetDistance(zone.Center.X, zone.Center.Y, drone.Location.X, drone.Location.Y)
-            });
+                {
+                    zone.Center.X,
+                    zone.Center.Y,
+                    zone.OwnerId,
+                    DistanceToCurrentDrone =
+                        Trigonometry.GetDistance(
+                            new Point(zone.Center.X, zone.Center.Y),
+                            new Point(drone.Location.X, drone.Location.Y))
+                });
             var nearestZone = zonesWithDistance.OrderBy(zone => zone.DistanceToCurrentDrone).FirstOrDefault();
             if (nearestZone == null) return GoToNearestZone(droneIndex);
             drone.Target = $"{nearestZone.X} {nearestZone.Y}";
@@ -71,13 +72,15 @@ namespace CodinGame.GameOfDrones
             var zones = GameOfDronesManager.Zones
                 .Where(zone => zone.OwnerId != GameOfDronesManager.PlayerId)
                 .Select(zone => new
-            {
-                zone.Center.X,
-                zone.Center.Y,
-                zone.OwnerId,
-                DistanceToCurrentDrone =
-                    Trigonometry.GetDistance(zone.Center.X, zone.Center.Y, drone.Location.X, drone.Location.Y)
-            });
+                {
+                    zone.Center.X,
+                    zone.Center.Y,
+                    zone.OwnerId,
+                    DistanceToCurrentDrone =
+                        Trigonometry.GetDistance(
+                            new Point(zone.Center.X, zone.Center.Y),
+                            new Point(drone.Location.X, drone.Location.Y))
+                });
             var nearestZone = zones
                 .OrderBy(zone => zone.DistanceToCurrentDrone)
                 .FirstOrDefault();

@@ -3,6 +3,7 @@ using System.Linq;
 using CodinGame.GameOfDrones.Guessing;
 using CodinGame.GameOfDrones.Models.Zones;
 using CodinGame.Utilities.Maths;
+using CodinGame.Utilities.Maths.Structs;
 
 namespace CodinGame.GameOfDrones.Models.Drones
 {
@@ -24,8 +25,9 @@ namespace CodinGame.GameOfDrones.Models.Drones
                         return new OpponentDrone(drone.Id)
                         {
                             TargetZone = targetZone,
-                            TargetDistance = Trigonometry.GetDistance(drone.Location.X, drone.Location.Y,
-                                targetZone.Center.X, targetZone.Center.Y),
+                            TargetDistance = Trigonometry.GetDistance(
+                                new Point(drone.Location.X, drone.Location.Y),
+                                new Point(targetZone.Center.X, targetZone.Center.Y)),
                             OpponentId = participant.Id
                         };
                     })
