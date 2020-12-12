@@ -14,7 +14,6 @@ namespace CodinGame.MarsLander.Actors
     {
         public List<MarsLanderActor> Actors { get; set; }
         public List<Generation> Generations { get; } = new List<Generation>();
-        public Lander FinalLander { get; private set; }
         public int? MaxActions { get; set; }
 
         private readonly MarsLanderEnvironment _environment;
@@ -255,14 +254,11 @@ namespace CodinGame.MarsLander.Actors
                 if (Generations.Last().Actors.Any(actor => actor.Lander.Status == LanderStatus.Landed))
                     break;
             }
+        }
 
-            var finalActorAndScore = Generations
-                .SelectMany(generation => generation.Actors)
-                .Select(actor => actor)
-                .OrderBy(actor => actor.Score)
-                .First();
-
-            FinalLander = finalActorAndScore.Lander;
+        public void ClearGenerations()
+        {
+            Generations.Clear();
         }
     }
 }
