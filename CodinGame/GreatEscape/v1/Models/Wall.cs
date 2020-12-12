@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace CodinGame.GreatEscape.Models
+namespace CodinGame.GreatEscape.v1.Models
 {
     public class Wall
     {

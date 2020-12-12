@@ -1,8 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
-namespace CodinGame.GreatEscape.Models
+namespace CodinGame.GreatEscape.v1.Models
 {
     public class Participant
     {

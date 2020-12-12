@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodinGame.GreatEscape.Models;
-using CodinGame.Utilities.Game;
+using CodinGame.GreatEscape.v1.Models;
 
-namespace CodinGame.GreatEscape
+namespace CodinGame.GreatEscape.v1
 {
     public static class GreatEscapeManager
     {

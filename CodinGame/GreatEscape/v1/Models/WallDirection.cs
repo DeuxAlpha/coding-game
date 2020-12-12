@@ -1,4 +1,4 @@
-namespace CodinGame.GreatEscape.Models
+namespace CodinGame.GreatEscape.v1.Models
 {
     public enum WallDirection
     {

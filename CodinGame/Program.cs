@@ -1,13 +1,13 @@
-using System.Collections.Generic;
-using CodinGame.MarsLander;
+
+using CodinGame.GreatEscape.v2;
 
 namespace CodinGame
 {
-    public class Program
+    public static class Program
     {
         private static void Main(string[] args)
         {
-            MarsLanderManager.Play();
+            GreatEscapeManager.Play();
         }
     }
 }

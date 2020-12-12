@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using CodinGame.MarsLander.Actors;
-using CodinGame.MarsLander.Models;
 using CodinGame.Utilities.Game;
 
 namespace CodinGame.MarsLander
@@ -14,9 +11,8 @@ namespace CodinGame.MarsLander
             string[] inputs;
             // the number of points used to draw the surface of Mars.
             var surfaceN = int.Parse(Console.ReadLine() ?? "");
-            int? leftX = null;
-            int? leftY = null;
-            var surfaceZones = new List<SurfaceZone>();
+            // int? leftX = null;
+            // int? leftY = null;
             for (var i = 0; i < surfaceN; i++)
             {
                 inputs = Console.ReadLine()?.Split(' ') ?? new string[] { };
@@ -24,38 +20,26 @@ namespace CodinGame.MarsLander
                 var landX = int.Parse(inputs[0]);
                 // Y coordinate of a surface point. By linking all the points together in a sequential fashion, you form the surface of Mars.
                 var landY = int.Parse(inputs[1]);
-                if (leftX == null)
+                Console.Error.WriteLine(new
                 {
-                    leftX = landX;
-                    leftY = landY;
-                    continue;
-                }
+                    landX, landY
+                });
+                // if (leftX == null)
+                // {
+                // leftX = landX;
+                // leftY = landY;
+                // continue;
+                // }
 
-                var rightX = landX;
-                var rightY = landY;
-                var surface = new SurfaceZone((int) leftX, (int) leftY, rightX, rightY);
-                surfaceZones.Add(surface);
-                leftX = rightX;
-                leftY = rightY;
+                // var rightX = landX;
+                // var rightY = landY;
+                // var surface = new SurfaceZone((int) leftX, (int) leftY, rightX, rightY);
+                // surfaceList.Add(surface);
+                // leftX = rightX;
+                // leftY = rightY;
             }
 
-            var environment = new MarsLanderEnvironment(surfaceZones);
-            var weights = new AiWeight
-            {
-                HorizontalDistanceWeight = 1,
-                VerticalDistanceWeight = 1,
-                HorizontalSpeedWeight = 1,
-                VerticalSpeedWeight = 1,
-                RotationWeight = .4,
-                FuelWeight = .1,
-                BetterBias = .9,
-                BetterCutoff = .15,
-                MutationChance = .025,
-                ElitismBias = .3
-            };
-            var evolution = new MarsLanderEvolution(environment, weights);
-            GenerationActor bestOverallActor = null;
-            var situationIndex = 0;
+            var queue = GetQueue();
 
             // game loop
             while (true)
@@ -69,19 +53,9 @@ namespace CodinGame.MarsLander
                 var rotation = int.Parse(inputs[5]); // the rotation angle in degrees (-90 to 90).
                 var power = int.Parse(inputs[6]); // the thrust power (0 to 4).
 
-                var lander = new Lander
-                {
-                    Situation = new Situation
-                    {
-                        X = x,
-                        Y = y,
-                        HorizontalSpeed = horizontalSpeed,
-                        VerticalSpeed = verticalSpeed,
-                        Rotation = rotation,
-                        Power = power,
-                        Fuel = fuel
-                    }
-                };
+                var action = queue.Dequeue();
+                Logger.Log(action);
+                Actions.Commit($"{action[0]} {action[1]}");
 
                 // TODO: Implement the algorithm.
                 // This is how it's going to work: Every tick, we are creating 10 generations with 10 populations. We
@@ -91,39 +65,35 @@ namespace CodinGame.MarsLander
                 // continue to have better and better actors for every evolution. What's useful about this method is that
                 // if we have an actor with score 0, it will always continue to be picked without the chance of it getting
                 // overridden.
-
-                evolution.Run(10, 10, lander);
-
-                var bestEvolutionActor = evolution.Generations
-                    .SelectMany(generation => generation.Actors)
-                    .OrderBy(actor => actor.Score)
-                    .First();
-
-                if (bestOverallActor == null || bestEvolutionActor.Score < bestOverallActor.Score)
-                {
-                    situationIndex = 0;
-                    bestOverallActor = bestEvolutionActor;
-                }
-
-                Logger.Log("Best Score", bestOverallActor.Score);
-                var situation = bestOverallActor.Lander.Situations.ElementAtOrDefault(situationIndex);
-                Logger.Log($"Applying Situation from index '{situationIndex}'", situation);
-
-                if (situation == null)
-                {
-                    Actions.Commit("0 4");
-                }
-                else
-                {
-                    Actions.Commit($"{situation.Rotation} {situation.Power}");
-                }
-
-
-                situationIndex += 1;
-                evolution.ClearGenerations();
             }
 
             // ReSharper disable once FunctionNeverReturns
+        }
+
+        private static Queue<int[]> GetQueue()
+        {
+            return new Queue<int[]>(new[]
+            {
+                new[] {-1, 0}, new[] {-1, 0}, new[] {1, 0}, new[] {4, 1}, new[] {-3, 2}, new[] {-3, 3}, new[] {0, 4},
+                new[] {3, 4}, new[] {8, 4}, new[] {13, 4}, new[] {7, 4}, new[] {11, 4}, new[] {4, 4}, new[] {1, 4},
+                new[] {-6, 4}, new[] {-14, 4}, new[] {-15, 4}, new[] {-17, 4}, new[] {-19, 4}, new[] {-16, 4},
+                new[] {-15, 3}, new[] {-16, 4}, new[] {-18, 4}, new[] {-29, 4}, new[] {-30, 4}, new[] {-23, 4},
+                new[] {-29, 4}, new[] {-32, 4}, new[] {-31, 4}, new[] {-31, 4}, new[] {-31, 3}, new[] {-28, 4},
+                new[] {-26, 4}, new[] {-15, 3}, new[] {-23, 4}, new[] {-25, 4}, new[] {-16, 4}, new[] {-14, 4},
+                new[] {-20, 4}, new[] {-21, 4}, new[] {-21, 4}, new[] {-13, 4}, new[] {-8, 4}, new[] {-5, 4},
+                new[] {-1, 3}, new[] {2, 3}, new[] {1, 4}, new[] {-2, 4}, new[] {-11, 4}, new[] {-17, 4},
+                new[] {-21, 4}, new[] {-18, 4}, new[] {-23, 4}, new[] {-19, 4}, new[] {-22, 4}, new[] {-25, 3},
+                new[] {-23, 2}, new[] {-13, 3}, new[] {-2, 2}, new[] {-13, 3}, new[] {-9, 4}, new[] {-3, 3},
+                new[] {4, 4}, new[] {16, 4}, new[] {23, 4}, new[] {21, 4}, new[] {18, 4}, new[] {8, 3}, new[] {17, 3},
+                new[] {24, 4}, new[] {27, 4}, new[] {31, 3}, new[] {28, 4}, new[] {28, 4}, new[] {30, 4}, new[] {31, 4},
+                new[] {24, 4}, new[] {31, 4}, new[] {24, 4}, new[] {16, 4}, new[] {12, 4}, new[] {3, 3}, new[] {18, 3},
+                new[] {21, 4}, new[] {17, 3}, new[] {15, 4}, new[] {14, 4}, new[] {22, 4}, new[] {17, 3}, new[] {17, 4},
+                new[] {18, 4}, new[] {11, 4}, new[] {11, 4}, new[] {13, 4}, new[] {18, 4}, new[] {11, 3}, new[] {3, 4},
+                new[] {0, 4}, new[] {-7, 4}, new[] {-8, 4}, new[] {-10, 4}, new[] {-17, 4}, new[] {-21, 3},
+                new[] {-30, 4}, new[] {-18, 4}, new[] {-25, 4}, new[] {-11, 4}, new[] {-17, 4}, new[] {-4, 3},
+                new[] {9, 4}, new[] {-5, 3}, new[] {-16, 4}, new[] {-6, 4}, new[] {2, 4}, new[] {9, 4}, new[] {7, 4},
+                new[] {0, 3}, new[] {0, 3}, new[] {0, 3}
+            });
         }
     }
 }

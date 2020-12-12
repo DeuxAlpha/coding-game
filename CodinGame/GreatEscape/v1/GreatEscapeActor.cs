@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using CodinGame.GreatEscape.Models;
+using CodinGame.GreatEscape.v1.Models;
 using CodinGame.Utilities.Game;
 
-namespace CodinGame.GreatEscape
+namespace CodinGame.GreatEscape.v1
 {
     public static class GreatEscapeActor
     {
