@@ -56,6 +56,15 @@ namespace CodinGame.MarsLander
                 var action = queue.Dequeue();
                 Logger.Log(action);
                 Actions.Commit($"{action[0]} {action[1]}");
+
+                // TODO: Implement the algorithm.
+                // This is how it's going to work: Every tick, we are creating 10 generations with 10 populations. We
+                // are applying the very first action of the best actor of all the generations and keeping its score.
+                // Next, we do the same once more. If there is an actor with a better score, we apply his first action.
+                // Otherwise, we stick with the actor from the previous evolution. As we proceed downward, we will
+                // continue to have better and better actors for every evolution. What's useful about this method is that
+                // if we have an actor with score 0, it will always continue to be picked without the chance of it getting
+                // overridden.
             }
 
             // ReSharper disable once FunctionNeverReturns

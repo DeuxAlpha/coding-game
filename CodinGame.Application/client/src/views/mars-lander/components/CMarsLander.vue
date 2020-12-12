@@ -8,7 +8,11 @@
         </select>
         <AButton :disabled="!selectedMap" @click="requestLanding">Land</AButton>
         <AButton :disabled="!selectedMap" @click="calculateWeights">Calculate Weights</AButton>
+        <AButton @click="applyOneActionFromBestActor" class="max-w-2xl">
+          Apply 1 Action
+        </AButton>
         <div class="ml-auto">
+          <AButton @click="resetMaps">Reset Maps</AButton>
           <AButton @click="expandParams = !expandParams">
             <template v-if="expandParams">Hide Params</template>
             <template v-else>Show Params</template>
@@ -211,7 +215,8 @@ export default defineComponent({
 
     const graph = ref(null) as Ref;
 
-    const mapElements = await marsLanderApi.GetMaps();
+    let mapElements = await marsLanderApi.GetMaps();
+    const originalMaps = mapElements.map(element => element);
 
     const selectedGeneration = ref(0);
 
@@ -222,15 +227,18 @@ export default defineComponent({
     function onMapChange() {
       selectedGeneration.value = 0;
       const mapToRender = getMapToRender();
-      initialFuel.value = mapToRender.InitialFuel;
-      initialPower.value = mapToRender.InitialPower;
-      initialRotation.value = mapToRender.InitialRotation
-      initialX.value = mapToRender.InitialX;
-      initialY.value = mapToRender.InitialY;
-      initialHorizontalSpeed.value = mapToRender.InitialHorizontalSpeed;
-      initialVerticalSpeed.value = mapToRender.InitialVerticalSpeed;
-
+      setParams(mapToRender);
       renderMap(mapToRender);
+    }
+
+    function setParams(map: Map) {
+      initialFuel.value = map.InitialFuel;
+      initialPower.value = map.InitialPower;
+      initialRotation.value = map.InitialRotation
+      initialX.value = map.InitialX;
+      initialY.value = map.InitialY;
+      initialHorizontalSpeed.value = map.InitialHorizontalSpeed;
+      initialVerticalSpeed.value = map.InitialVerticalSpeed;
     }
 
     const generations = ref([]) as Ref<Array<Generation>>;
@@ -414,7 +422,25 @@ export default defineComponent({
       })
     }
 
+    function resetMaps() {
+      mapElements = originalMaps.map(element => element);
+      setParams(getMapToRender());
+    }
+
+    function applyOneActionFromBestActor() {
+      const bestSituation = orderedActors.value[0].Lander.Situations[0];
+      initialFuel.value = bestSituation.Fuel;
+      initialPower.value = bestSituation.Power;
+      initialRotation.value = bestSituation.Rotation;
+      initialX.value = bestSituation.X;
+      initialY.value = bestSituation.Y;
+      initialHorizontalSpeed.value = bestSituation.HorizontalSpeed;
+      initialVerticalSpeed.value = bestSituation.VerticalSpeed;
+    }
+
     return {
+      applyOneActionFromBestActor,
+      resetMaps,
       calculateWeights,
       copyActions,
       mapElements,

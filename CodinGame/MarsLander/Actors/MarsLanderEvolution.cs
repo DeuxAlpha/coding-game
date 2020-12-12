@@ -177,10 +177,12 @@ namespace CodinGame.MarsLander.Actors
         private void UpdateActor(int index, IEnumerable<string> actions)
         {
             // Basically creating an entirely new actor.
-            Actors[index].Reset();
-            Actors[index].ApplyActions(actions); // Acting to get score for next evolution
-            if (Actors[index].Lander.Status == LanderStatus.Flying && MaxActions == null)
-                Actors[index].ApplyFullRangeRandomActions(_randomNessProvider);
+            var actor = Actors.ElementAtOrDefault(index);
+            if (actor == null) return;
+            actor.Reset();
+            actor.ApplyActions(actions);
+            if (actor.Lander.Status == LanderStatus.Flying && MaxActions == null)
+                actor.ApplyFullRangeRandomActions(_randomNessProvider);
         }
 
         private GenerationActor ScoreActor(MarsLanderActor actor, MarsLanderEnvironment environment)
@@ -198,15 +200,23 @@ namespace CodinGame.MarsLander.Actors
             var verticalSpeed = actor.Lander.Situation.VerticalSpeed;
             var rotation = actor.Lander.Situation.Rotation;
             var fuel = actor.Lander.Situation.Fuel;
+            var originalSituation = actor.Original.Situation;
             if (horizontalDistance > 0 && horizontalSpeed < 0 ||
                 horizontalDistance < 0 && horizontalSpeed > 0)
             {
-                // Discourage going into the wrong direction
-                return new GenerationActor
+                // Discourage going into the wrong direction. BUT don't include things like overshooting the landing zone,
+                // as it went the correct direction initially.
+                var landingZone = environment.GetLandingZone();
+                if (actor.Lander.Situation.X < originalSituation.X && landingZone.LeftX > originalSituation.X ||
+                    actor.Lander.Situation.X > originalSituation.X && landingZone.RightX < originalSituation.X)
                 {
-                    Lander = actor.Lander.Clone(),
-                    Score = 100_000_000
-                };
+                    // We landed further away from the landing zone than when we started.
+                    return new GenerationActor
+                    {
+                        Lander = actor.Lander.Clone(),
+                        Score = 100_000_000
+                    };
+                }
             }
 
             if (actor.Lander.Status == LanderStatus.Lost)
@@ -216,8 +226,8 @@ namespace CodinGame.MarsLander.Actors
                     Score = 100_000
                 };
 
-            // TODO: Need to adjust this.
-            var horizontalDistanceToSpeed = (Math.Abs(horizontalDistance) + Math.Abs(horizontalSpeed)) * 100;
+            // TODO: Need to adjust the weight on these.
+            var horizontalDistanceToSpeed = 0.0;
             if (!horizontalDistance.IsZero() && !horizontalSpeed.IsZero())
                 horizontalDistanceToSpeed = horizontalDistance / horizontalSpeed;
             return new GenerationActor
