@@ -45,6 +45,7 @@ namespace CodinGame.GreatEscape.v2
                         wallX,
                         wallY,
                         wallOrientation == "H" ? WallDirection.Horizontal : WallDirection.Vertical);
+                    environment.StoreHistory();
                 }
 
                 // Write an action using Console.WriteLine()

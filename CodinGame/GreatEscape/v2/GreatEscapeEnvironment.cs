@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,13 @@ namespace CodinGame.GreatEscape.v2
                     leftBelowCell.CutConnectionToRightCell();
                 }
             }
+        }
+
+        /// <summary>Returns the actions that need to be taken (LEFT, RIGHT, UP, DOWN) to get to the closest exit.
+        /// </summary>
+        public IEnumerable<string> GetFastestActionsToExit(Dragon dragon)
+        {
+            throw new NotImplementedException();
         }
 
         public void StoreHistory()

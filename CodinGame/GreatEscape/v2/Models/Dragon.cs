@@ -13,7 +13,7 @@ namespace CodinGame.GreatEscape.v2.Models
 
         public Dragon(PlayerType playerType)
         {
-
+            PlayerType = playerType;
         }
 
         public void Update(Cell location, int availableWalls)
