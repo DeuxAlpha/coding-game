@@ -5,10 +5,10 @@ namespace CodinGame.GreatEscape.v2.Models
         public int X { get; }
         public int Y { get; }
         public string Id => $"{X}{Y}";
-        public string ConnectedUpperCellId { get; private set; }
-        public string ConnectedRightCellId { get; private set; }
-        public string ConnectedLowerCellId { get; private set; }
-        public string ConnectedLeftCellId { get; private set; }
+        public string UpperCellConnectedId { get; private set; }
+        public string RightCellConnectedId { get; private set; }
+        public string LowerCellConnectedId { get; private set; }
+        public string LeftCellConnectedId { get; private set; }
         public string UpperCellId { get; private set; }
         public string RightCellId { get; private set; }
         public string LowerCellId { get; private set; }
@@ -25,44 +25,44 @@ namespace CodinGame.GreatEscape.v2.Models
             Y = y;
             if (y - 1 >= 0)
             {
-                ConnectedUpperCellId = $"{X}{Y - 1}";
-                UpperCellId = ConnectedUpperCellId;
+                UpperCellConnectedId = $"{X}{Y - 1}";
+                UpperCellId = UpperCellConnectedId;
             }
             if (x + 1 < maxWidth)
             {
-                ConnectedRightCellId = $"{X + 1}{Y}";
-                RightCellId = ConnectedRightCellId;
+                RightCellConnectedId = $"{X + 1}{Y}";
+                RightCellId = RightCellConnectedId;
             }
             if (y + 1 < maxHeight)
             {
-                ConnectedLowerCellId = $"{X}{Y + 1}";
-                LowerCellId = ConnectedLowerCellId;
+                LowerCellConnectedId = $"{X}{Y + 1}";
+                LowerCellId = LowerCellConnectedId;
             }
             if (x - 1 >= 0)
             {
-                ConnectedLeftCellId = $"{X - 1}{Y}";
-                LeftCellId = ConnectedLeftCellId;
+                LeftCellConnectedId = $"{X - 1}{Y}";
+                LeftCellId = LeftCellConnectedId;
             }
         }
 
-        public void CutConnectionToLeftCell()
+        public void RemoveLeftCellConnection()
         {
-            ConnectedLeftCellId = null;
+            LeftCellConnectedId = null;
         }
 
-        public void CutConnectionToUpperCell()
+        public void RemoveUpperCellConnection()
         {
-            ConnectedUpperCellId = null;
+            UpperCellConnectedId = null;
         }
 
-        public void CutConnectionToRightCell()
+        public void RemoveRightCellConnection()
         {
-            ConnectedRightCellId = null;
+            RightCellConnectedId = null;
         }
 
-        public void CutConnectionToBelowCell()
+        public void RemoveLowerCellConnection()
         {
-            ConnectedLowerCellId = null;
+            LowerCellConnectedId = null;
         }
 
         public Cell Clone()

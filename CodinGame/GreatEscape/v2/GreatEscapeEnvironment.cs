@@ -19,7 +19,7 @@ namespace CodinGame.GreatEscape.v2
             OriginalMap = new Map(Map.Cells.Select(cell => cell.Clone()).ToList());
         }
 
-        private Map CreateMap(int height, int width)
+        private static Map CreateMap(int height, int width)
         {
             var cells = new List<Cell>();
             for (var heightIndex = 0; heightIndex < height; heightIndex++)
@@ -38,35 +38,35 @@ namespace CodinGame.GreatEscape.v2
             var originCell = Map.GetCell(x, y);
             if (wallDirection == WallDirection.Horizontal)
             {
-                if (originCell.ConnectedUpperCellId != null)
+                if (originCell.UpperCellConnectedId != null)
                 {
-                    var upperCell = Map.GetCell(originCell.ConnectedUpperCellId);
-                    upperCell.CutConnectionToBelowCell();
-                    originCell.CutConnectionToUpperCell();
+                    var upperCell = Map.GetCell(originCell.UpperCellConnectedId);
+                    upperCell.RemoveLowerCellConnection();
+                    originCell.RemoveUpperCellConnection();
                 }
 
                 if (originCell.RightCellId != null)
                 {
                     var rightCell = Map.GetCell(originCell.RightCellId);
-                    var rightAboveCell = Map.GetCell(rightCell.ConnectedUpperCellId);
-                    rightCell.CutConnectionToUpperCell();
-                    rightAboveCell.CutConnectionToBelowCell();
+                    var rightAboveCell = Map.GetCell(rightCell.UpperCellConnectedId);
+                    rightCell.RemoveUpperCellConnection();
+                    rightAboveCell.RemoveLowerCellConnection();
                 }
             }
             else
             {
-                if (originCell.ConnectedLeftCellId != null)
+                if (originCell.LeftCellConnectedId != null)
                 {
-                    var leftCell = Map.GetCell(originCell.ConnectedLeftCellId);
-                    leftCell.CutConnectionToRightCell();
-                    originCell.CutConnectionToLeftCell();
+                    var leftCell = Map.GetCell(originCell.LeftCellConnectedId);
+                    leftCell.RemoveRightCellConnection();
+                    originCell.RemoveLeftCellConnection();
                 }
                 if (originCell.LowerCellId != null)
                 {
                     var lowerCell = Map.GetCell(originCell.LowerCellId);
-                    var leftBelowCell = Map.GetCell(lowerCell.ConnectedLeftCellId);
-                    lowerCell.CutConnectionToLeftCell();
-                    leftBelowCell.CutConnectionToRightCell();
+                    var leftBelowCell = Map.GetCell(lowerCell.LeftCellConnectedId);
+                    lowerCell.RemoveLeftCellConnection();
+                    leftBelowCell.RemoveRightCellConnection();
                 }
             }
         }
@@ -81,6 +81,17 @@ namespace CodinGame.GreatEscape.v2
         public void StoreHistory()
         {
             HistoryMaps.Add(new Map(Map.Cells.Select(cell => cell.Clone()).ToList()));
+        }
+
+        public IEnumerable<string> GetPossibleActions(Dragon dragon)
+        {
+            var possibleActions = new List<string>();
+            if (dragon.Location.LowerCellConnectedId != null) possibleActions.Add("DOWN");
+            if (dragon.Location.RightCellConnectedId != null) possibleActions.Add("RIGHT");
+            if (dragon.Location.UpperCellConnectedId != null) possibleActions.Add("UP");
+            if (dragon.Location.LeftCellConnectedId != null) possibleActions.Add("LEFT");
+            // TODO: Add possible wall actions
+            return possibleActions;
         }
     }
 }

@@ -79,5 +79,11 @@ namespace CodinGame.Utilities.Maths
                 _ => throw new ArgumentOutOfRangeException(nameof(zeroDegreesDirection), zeroDegreesDirection, null)
             };
         }
+
+        /// <summary>Returns the distance of two points on a grid. Does not allow for diagonal moves.</summary>
+        public static double GetGridDistance(Point origin, Point destination)
+        {
+            return Math.Abs(origin.X - destination.X) + Math.Abs(origin.Y - destination.Y);
+        }
     }
 }

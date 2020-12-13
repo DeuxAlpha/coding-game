@@ -1,16 +1,14 @@
-namespace CodinGame.Utilities.Graphs
+namespace CodinGame.Utilities.Graphs.Grids
 {
-    public class Edge
+    public class GridEdge
     {
         public string OriginId { get; set; }
         public string DestinationId { get; set; }
-        public double Cost { get; set; }
 
-        public Edge(string originId, string destinationId, double cost = 1.0)
+        public GridEdge(string originId, string destinationId)
         {
             OriginId = originId;
             DestinationId = destinationId;
-            Cost = cost;
         }
     }
 }
