@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using CodinGame.Utilities.Extensions;
+using CodinGame.Utilities.Heaps;
 using CodinGame.Utilities.Maths;
 using CodinGame.Utilities.Maths.Models;
 
@@ -10,8 +12,13 @@ namespace CodinGame.Utilities.Graphs.Grids
         public List<GridNode> Nodes { get; } = new List<GridNode>();
         public List<GridEdge> Edges { get; } = new List<GridEdge>();
 
+        private int _maxWidth;
+        private int _maxHeight;
+
         public Grid(int width, int height)
         {
+            _maxHeight = height;
+            _maxWidth = width;
             for (var widthIndex = 0; widthIndex < width; widthIndex++)
             {
                 for (var heightIndex = 0; heightIndex < height; heightIndex++)
@@ -22,10 +29,10 @@ namespace CodinGame.Utilities.Graphs.Grids
                         Y = heightIndex
                     };
                     Nodes.Add(node);
-                    if (widthIndex + 1 < width) AddConnection(node.Id, node.RightNeighbourId, false);
-                    if (widthIndex - 1 >= 0) AddConnection(node.Id, node.LeftNeighbourId, false);
-                    if (heightIndex + 1 < height) AddConnection(node.Id, node.LowerNeighbourId, false);
-                    if (heightIndex - 1 >= 0) AddConnection(node.Id, node.UpperNeighbourId, false);
+                    if (widthIndex + 1 < width) Edges.Add(new GridEdge(node.Id, node.RightNeighbourId));
+                    if (widthIndex - 1 >= 0) Edges.Add(new GridEdge(node.Id, node.LeftNeighbourId));
+                    if (heightIndex + 1 < height) Edges.Add(new GridEdge(node.Id, node.LowerNeighbourId));
+                    if (heightIndex - 1 >= 0) Edges.Add(new GridEdge(node.Id, node.UpperNeighbourId));
                 }
             }
         }
@@ -65,25 +72,93 @@ namespace CodinGame.Utilities.Graphs.Grids
             return Nodes.First(node => node.Id == nodeId);
         }
 
-        public List<GridNode> GetNeighbours(GridNode gridNode)
+        public IEnumerable<GridNode> GetNeighbours(GridNode gridNode)
         {
             var edgesFromNode = Edges.Where(edge => edge.OriginId == gridNode.Id);
-            return edgesFromNode.Select(edge => GetNode(edge.DestinationId)).ToList();
+            return edgesFromNode.Select(edge => GetNode(edge.DestinationId));
         }
 
         /// <summary>Returns the node that need to be followed in order to reach the destination. Currently only works
         /// on a Grid, without costs associated with the movements.</summary>
-        public List<GridNodeAStar> GetAStarNodes(string originId, string targetId)
+        // This version with the Heap is actually slower than the one with list.
+        public List<GridNodeAStar> GetAStarNodesWithHeap(string originId, string targetId)
+        {
+            var origin = GetNode(originId);
+            var target = GetNode(targetId);
+
+            var openSet = new Heap<GridNodeAStar>(_maxWidth * _maxHeight);
+            var closedSet = new Heap<GridNodeAStar>(_maxWidth * _maxHeight);
+
+            var aStarOrigin = new GridNodeAStar(origin, origin, target);
+
+            openSet.Add(aStarOrigin);
+
+            while (openSet.Any())
+            {
+                var currentNode = openSet.Pop();
+
+                closedSet.Add(currentNode);
+
+                if (currentNode.Id == target.Id)
+                {
+                    // Found the target node. Retracing steps.
+                    var path = new List<GridNodeAStar>();
+                    var pathPosition = currentNode;
+                    while (pathPosition.Id != origin.Id)
+                    {
+                        path.Add(pathPosition);
+                        pathPosition = pathPosition.Parent;
+                    }
+
+                    path.Reverse();
+                    return path;
+                }
+
+                foreach (var neighbour in GetNeighbours(currentNode).Select(node => new GridNodeAStar(node, origin, target)))
+                {
+                    if (closedSet.Items.FirstOrDefault(node => node != null && node.Id == neighbour.Id) != null) continue;
+
+                    var newMovementCostToNeighbour = currentNode.GCost + Trigonometry.GetGridDistance(
+                        new Point(currentNode.X, currentNode.Y),
+                        new Point(neighbour.X, neighbour.Y));
+
+                    var neighbourInOpenSet = openSet.Items.FirstOrDefault(node => node != null && node.Id == neighbour.Id);
+                    if (neighbourInOpenSet == null)
+                    {
+                        // Neighbour has not been analyzed yet, so we are generating the costs and adding to open set.
+                        neighbour.GCost = newMovementCostToNeighbour;
+                        neighbour.HCost = Trigonometry.GetGridDistance(
+                            new Point(neighbour.X, neighbour.Y),
+                            new Point(target.X, target.Y));
+                        neighbour.Parent = currentNode;
+                        openSet.Add(neighbour);
+                    }
+                    if (neighbourInOpenSet != null && newMovementCostToNeighbour > neighbourInOpenSet.GCost)
+                    {
+                        // Neighbour already exists in open set, but the new movement cost is cheaper, so we're updating it.
+                        neighbourInOpenSet.GCost = newMovementCostToNeighbour;
+                        neighbourInOpenSet.HCost = Trigonometry.GetDistance(
+                            new Point(neighbourInOpenSet.X, neighbourInOpenSet.Y),
+                            new Point(target.X, target.Y));
+                        neighbourInOpenSet.Parent = currentNode;
+                    }
+                }
+            }
+
+            return new List<GridNodeAStar>();
+        }
+
+        /// <summary>Returns the node that need to be followed in order to reach the destination. Currently only works
+        /// on a Grid, without costs associated with the movements.</summary>
+        // This method is actually faster than the one above, even though it should not be. Might have to looks at some
+        // of the algorithm to improve performance.
+        public List<GridNodeAStar> GetAStarNodesWithList(string originId, string targetId)
         {
             var origin = GetNode(originId);
             var target = GetNode(targetId);
 
             var openSet = new List<GridNodeAStar>();
             var closedSet = new HashSet<GridNodeAStar>();
-
-            var overallDistance = Trigonometry.GetGridDistance(
-                new Point(origin.X, origin.Y),
-                new Point(target.X, target.Y));
 
             var aStarOrigin = new GridNodeAStar(origin, origin, target);
 

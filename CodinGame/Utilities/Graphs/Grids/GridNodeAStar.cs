@@ -1,10 +1,11 @@
+using CodinGame.Utilities.Heaps;
 using CodinGame.Utilities.Maths;
 using CodinGame.Utilities.Maths.Models;
 
 namespace CodinGame.Utilities.Graphs.Grids
 {
     /// <summary>This currently only works on a grid I guess...</summary>
-    public class GridNodeAStar : GridNode
+    public class GridNodeAStar : GridNode, IHeapItem<GridNodeAStar>
     {
         /// <summary>Distance from the starting node.</summary>
         public double GCost { get; set; }
@@ -23,5 +24,18 @@ namespace CodinGame.Utilities.Graphs.Grids
             GCost = Trigonometry.GetGridDistance(new Point(X, Y), new Point(originGridNode.X, originGridNode.Y));
             HCost = Trigonometry.GetGridDistance(new Point(X, Y), new Point(targetGridNode.X, targetGridNode.Y));
         }
+
+        public int CompareTo(GridNodeAStar other)
+        {
+            var compare = FCost.CompareTo(other.FCost);
+            if (compare == 0)
+            {
+                compare = HCost.CompareTo(other.HCost);
+            }
+
+            return -compare;
+        }
+
+        public int HeapIndex { get; set; }
     }
 }
