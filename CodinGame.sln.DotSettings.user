@@ -1,16 +1,7 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=195569de_002D32d5_002D420f_002Da0e9_002Ddb0f5c376af2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CloneGrid_BigGrid_ClonesGrid" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.GridTests.CloneGrid_BigGrid_ClonesGrid&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=af8f79c8_002D8aa9_002D4667_002Db34e_002D6dc3bb102635/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestAStar_AllPathsClosed_ReturnsEmptyNodeList" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_AllPathsClosed_ReturnsEmptyNodeList&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_CutOffAtBottom_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.GridTests.CloneGrid_BigGrid_ClonesGrid&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Codei/@EntryIndexedValue">True</s:Boolean>
+	
+	
 	
 	
 	

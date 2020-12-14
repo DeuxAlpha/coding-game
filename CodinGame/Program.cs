@@ -1,5 +1,4 @@
-
-using CodinGame.GreatEscape.v2;
+using CodinGame.VoxCodei;
 
 namespace CodinGame
 {
@@ -7,7 +6,7 @@ namespace CodinGame
     {
         private static void Main(string[] args)
         {
-            GreatEscapeManager.Play();
+            VoxCodeiEntry.Enter();
         }
     }
 }
