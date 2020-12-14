@@ -9,10 +9,10 @@ namespace CodinGame.GreatEscape.v2.Models
         public string RightCellConnectedId { get; private set; }
         public string LowerCellConnectedId { get; private set; }
         public string LeftCellConnectedId { get; private set; }
-        public string UpperCellId { get; private set; }
-        public string RightCellId { get; private set; }
-        public string LowerCellId { get; private set; }
-        public string LeftCellId { get; private set; }
+        public string UpperCellId { get; }
+        public string RightCellId { get; }
+        public string LowerCellId { get; }
+        public string LeftCellId { get; }
 
         private readonly int _maxWidth;
         private readonly int _maxHeight;

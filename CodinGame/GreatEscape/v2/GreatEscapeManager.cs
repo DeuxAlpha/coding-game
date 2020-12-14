@@ -16,13 +16,12 @@ namespace CodinGame.GreatEscape.v2
             var inputs = Console.ReadLine()!.Split(' ');
             var width = int.Parse(inputs[0]); // width of the board
             var height = int.Parse(inputs[1]); // height of the board
-            var environment = new GreatEscapeEnvironment(height, width);
             var playerCount = int.Parse(inputs[2]); // number of players (2 or 3)
             var myId = int.Parse(inputs[3]); // id of my player (0 = 1st player, 1 = 2nd player, ...)
             var dragons = new List<Dragon>();
             for (var playerId = 0; playerId < playerCount; playerId++)
             {
-                dragons.Add(new Dragon(playerId == myId ? PlayerType.Player : PlayerType.Opponent));
+                dragons.Add(new Dragon(playerId == myId ? PlayerType.Player : PlayerType.Opponent, playerId));
             }
 
             var targetDirection = myId switch
@@ -39,45 +38,13 @@ namespace CodinGame.GreatEscape.v2
             // game loop
             while (true)
             {
-                // TODO: Use proper models
-                int? playerCoordsX = null;
-                int? playerCoordsY = null;
-                int? firstOpponentId = null;
-                int? firstOpponentCoordsX = null;
-                int? firstOpponentCoordsY = null;
-                int? secondOpponentId = null;
-                int? secondOpponentCoordsX = null;
-                int? secondOpponentCoordsY = null;
-
                 for (var i = 0; i < playerCount; i++)
                 {
                     inputs = Console.ReadLine()!.Split(' ');
                     var x = int.Parse(inputs[0]); // x-coordinate of the player
                     var y = int.Parse(inputs[1]); // y-coordinate of the player
-                    if (myId == i)
-                    {
-                        playerCoordsX = x;
-                        playerCoordsY = y;
-                    }
-                    else
-                    {
-                        if (firstOpponentCoordsX == null || firstOpponentCoordsY == null)
-                        {
-                            firstOpponentCoordsX = x;
-                            firstOpponentCoordsY = y;
-                            firstOpponentId = i;
-                        }
-                        else
-                        {
-                            secondOpponentCoordsX = x;
-                            secondOpponentCoordsY = y;
-                            secondOpponentId = i;
-                        }
-                    }
-
                     var wallsLeft = int.Parse(inputs[2]); // number of walls available for the player
-                    var cell = environment.Map.GetCell(x, y);
-                    // dragons[i].Update(cell, wallsLeft);
+                    dragons[i].Update(x, y, wallsLeft);
                 }
 
                 var wallCount = int.Parse(Console.ReadLine()!); // number of walls on the board
@@ -99,93 +66,156 @@ namespace CodinGame.GreatEscape.v2
                     }
                 }
 
-
+                var player = dragons.First(dragon => dragon.Id == myId);
 
                 // Write an action using Console.WriteLine()
                 // To debug: Console.Error.WriteLine("Debug messages...");
 
                 var target = targetDirection switch
                 {
-                    TargetDirection.Right => $"7-{playerCoordsY}",
-                    TargetDirection.Left => $"0-{playerCoordsY}",
-                    TargetDirection.Down => $"{playerCoordsX}-7",
-                    TargetDirection.Up => $"{playerCoordsX}-0"
+                    TargetDirection.Right => $"8-{player.Y}",
+                    TargetDirection.Left => $"0-{player.Y}",
+                    TargetDirection.Down => $"{player.X}-8",
+                    TargetDirection.Up => $"{player.X}-0"
                 };
 
-                var playerCoordinates = $"{playerCoordsX}-{playerCoordsY}";
-                var sw = Stopwatch.StartNew();
+                var playerCoordinates = $"{player.X}-{player.Y}";
                 Logger.Log("Player Coords", playerCoordinates);
                 Logger.Log("Target", target);
-                var travelNodes = grid.GetAStarNodesWithList(playerCoordinates, target);
-                Logger.Log(sw.Elapsed.ToString());
-                var firstNode = travelNodes.FirstOrDefault();
-                var action = targetDirection.ToString("G").ToUpper();
-                if (firstNode != null)
+
+                var playerInformation = new PlayerInformation
                 {
-                    if (firstNode.X > playerCoordsX)
-                        action = "RIGHT";
-                    if (firstNode.X < playerCoordsX)
-                        action = "LEFT";
-                    if (firstNode.Y > playerCoordsY)
-                        action = "DOWN";
-                    if (firstNode.Y < playerCoordsY)
-                        action = "UP";
+                    Dragon = player,
+                    Nodes = grid.GetAStarNodesWithList(playerCoordinates, target)
+                };
+
+                var otherPlayerInformation = dragons
+                    .Where(dragon => dragon.Id != myId && dragon.State == DragonState.Alive)
+                    .Select(dragon => new PlayerInformation
+                    {
+                        Dragon = dragon,
+                        Nodes = GetDragonTravelNodes(dragon, grid).ToList()
+                    })
+                    .OrderBy(dragon => dragon.Nodes.Count)
+                    .ToList();
+
+                Logger.Log("Players", dragons.Select(dragon => new {dragon.Id, dragon.State}));
+                var bestOpponent = otherPlayerInformation.First();
+                Logger.Log("My distance", playerInformation.Nodes.Count);
+                Logger.Log("Best opponent distance", bestOpponent.Nodes.Count);
+                var action = "";
+                if (bestOpponent.Nodes.Count <= playerInformation.Nodes.Count &&
+                    playerInformation.Dragon.AvailableWalls > 0)
+                {
+                    Logger.Log("Trying to get wall to place.");
+                    action = GetWall(bestOpponent, height, width, grid);
+                    if (string.IsNullOrWhiteSpace(action))
+                        action = GetMove(playerInformation, player);
+                }
+                else
+                {
+                    action = GetMove(playerInformation, player);
                 }
 
                 // Simply check if our count of nodes is less than that of the opponents, if it is not, set wall in front of
                 // opponents with least amount of remaining nodes.
 
                 // action: LEFT, RIGHT, UP, DOWN or "putX putY putOrientation" to place a wall
-                // Place a wall in front of opponent if we're not first (other wise we will loose.
-                if (round == 0 && myId != 0)
-                {
-                    // Checking for target direction. If we're going right, we know the opponent goes left.
-                    if (targetDirection == TargetDirection.Right)
-                    {
-                        var targetCellX = firstOpponentCoordsX - 2;
-                        var targetCellY = firstOpponentCoordsY;
-                        if (targetCellY == 7) targetCellY -= 1;
-                        if (targetCellY + 1 == playerCoordsY) targetCellY -= 1;
-                        Actions.Commit($"{targetCellX} {targetCellY} V");
-                    }
-                    else
-                    {
-                        var targetCellX = firstOpponentCoordsX + 2;
-                        var targetCellY = firstOpponentCoordsY;
-                        if (targetCellY == 7) targetCellY -= 1;
-                        if (targetCellY + 1 == playerCoordsY) targetCellY -= 1;
-                        Actions.Commit($"{targetCellX} {targetCellY} V");
-                    }
-                }
-
-                if (round == 1 && myId != 0)
-                {
-                    // Since we spent a round blocking the first player, we also need to spend some time to block the upper player.
-                    if (targetDirection == TargetDirection.Left)
-                    {
-                        // If we're going left, the second player is going down.
-                        var targetCellX = secondOpponentCoordsX;
-                        var targetCellY = secondOpponentCoordsY + 2;
-                        if (targetCellX == 7) targetCellX -= 1;
-                        if (targetCellX + 1 == playerCoordsX) targetCellX -= 1;
-                        Actions.Commit($"{targetCellX} {targetCellY} H");
-                    }
-
-                    if (targetDirection == TargetDirection.Down)
-                    {
-                        var targetCellX = secondOpponentCoordsX - 2;
-                        var targetCellY = secondOpponentCoordsY;
-                        if (targetCellY == 7) targetCellY -= 1;
-                        if (targetCellY + 1 == playerCoordsY) targetCellY -= 1;
-                        Actions.Commit($"{targetCellX} {targetCellY} V");
-                    }
-                }
-                else
-                {
-                    Actions.Commit(action);
-                }
+                Actions.Commit(action);
 
                 round += 1;
+
+                Logger.Log("Round", round);
+            }
+        }
+
+        private static string GetMove(PlayerInformation playerInformation, Dragon player)
+        {
+            var firstNode = playerInformation.Nodes.FirstOrDefault();
+            var action = player.TargetDirection.ToString("G").ToUpper();
+            if (firstNode == null) return action;
+            if (firstNode.X > player.X)
+                action = "RIGHT";
+            if (firstNode.X < player.X)
+                action = "LEFT";
+            if (firstNode.Y > player.Y)
+                action = "DOWN";
+            if (firstNode.Y < player.Y)
+                action = "UP";
+
+            return action;
+        }
+
+        private static string GetWall(PlayerInformation bestOpponent, int height, int width, Grid grid)
+        {
+            var action = "";
+            // Some opponent is doing better than us. We need to wall them in.
+            if (bestOpponent.Dragon.TargetDirection == TargetDirection.Right)
+            {
+                var wallX = bestOpponent.Dragon.X + 1;
+                var wallY = bestOpponent.Dragon.Y;
+                if (wallY == height) wallY -= 1;
+                if (CanPlaceWall(wallX, wallY, WallDirection.Vertical, grid))
+                    action = $"{wallX} {wallY} V";
+            }
+
+            if (bestOpponent.Dragon.TargetDirection == TargetDirection.Left)
+            {
+                var wallX = bestOpponent.Dragon.X;
+                var wallY = bestOpponent.Dragon.Y;
+                if (wallY == height) wallY -= 1;
+                if (CanPlaceWall(wallX, wallY, WallDirection.Vertical, grid))
+                    action = $"{wallX} {wallY} V";
+            }
+
+            if (bestOpponent.Dragon.TargetDirection == TargetDirection.Down)
+            {
+                var wallY = bestOpponent.Dragon.Y + 1;
+                var wallX = bestOpponent.Dragon.X;
+                if (wallX == width) wallX -= 1;
+                if (CanPlaceWall(wallX, wallY, WallDirection.Vertical, grid))
+                    action = $"{wallX} {wallY} H";
+            }
+
+            return action;
+        }
+
+        private static IEnumerable<GridNodeAStar> GetDragonTravelNodes(Dragon dragon, Grid grid)
+        {
+            var dragonTarget = dragon.TargetDirection;
+            var target = dragonTarget switch
+            {
+                TargetDirection.Right => $"7-{dragon.Y}",
+                TargetDirection.Left => $"0-{dragon.Y}",
+                TargetDirection.Down => $"{dragon.X}-7",
+                TargetDirection.Up => $"{dragon.X}-0"
+            };
+            var dragonCoordinates = $"{dragon.X}-{dragon.Y}";
+            var travelNodes = grid.GetAStarNodesWithList(dragonCoordinates, target);
+            return travelNodes;
+        }
+
+        private static bool CanPlaceWall(int x, int y, WallDirection wallDirection, Grid grid)
+        {
+            if (wallDirection == WallDirection.Vertical)
+            {
+                var upperLeftCellId = $"{x - 1}-{y}";
+                var upperRightCellId = $"{x}-{y}";
+                var lowerLeftCellId = $"{x - 1}-{y + 1}";
+                var lowerRightCellId = $"{x}-{y + 1}";
+                var upperConnectionExists = grid.DoesConnectionExist(upperLeftCellId, upperRightCellId);
+                var lowerConnectionExists = grid.DoesConnectionExist(lowerLeftCellId, lowerRightCellId);
+                return upperConnectionExists && lowerConnectionExists;
+            }
+            else
+            {
+                var upperLeftCellId = $"{x}-{y - 1}";
+                var lowerLeftCellId = $"{x}-{y}";
+                var upperRightCellId = $"{x + 1}-{y - 1}";
+                var lowerRightCellId = $"{x + 1}-{y}";
+                var leftConnectionExists = grid.DoesConnectionExist(upperLeftCellId, lowerLeftCellId);
+                var rightConnectionExists = grid.DoesConnectionExist(upperRightCellId, lowerRightCellId);
+                return leftConnectionExists && rightConnectionExists;
             }
         }
     }

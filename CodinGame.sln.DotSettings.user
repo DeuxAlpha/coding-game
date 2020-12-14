@@ -1,38 +1,21 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=90cb5469_002D5b3f_002D43e9_002D9293_002D4321edf6b309/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestAStar_BigGrid_ReturnsAStarNodes" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=195569de_002D32d5_002D420f_002Da0e9_002Ddb0f5c376af2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CloneGrid_BigGrid_ClonesGrid" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_BigGrid_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.GridTests.CloneGrid_BigGrid_ClonesGrid&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=98a33791_002Dd05d_002D40b0_002Dbc50_002D5e8bfb205eeb/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestAStar_BigGrid_ReturnsAStarNodes #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=af8f79c8_002D8aa9_002D4667_002Db34e_002D6dc3bb102635/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestAStar_AllPathsClosed_ReturnsEmptyNodeList" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_BigGrid_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStarWithList_BigGrid_ReturnAStarNodes&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_AllPathsClosed_ReturnsEmptyNodeList&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_CutOffAtBottom_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.GridTests.CloneGrid_BigGrid_ClonesGrid&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a2024a67_002D3fc9_002D4f0b_002D8e63_002Dd8f0652f1c9c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;CodinGame.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Users\Aaron\Documents\Coding\CodinGame\C#\CodinGame.Tests" Presentation="&amp;lt;CodinGame.Tests&amp;gt;" /&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e3d0dc3f_002D037c_002D4a33_002D9849_002Df2e0be128d5b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="LineSegmentsIntersect" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.LineSegmentsIntersect&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetXIntercept_ValidParameters_ReturnsIntercept&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetYIntercept_ValidParameters_ReturnsIntercept&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(0,10,0,0,double.MinValue,0,double.MaxValue,0,Point,0,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(0,10,0,-10,double.MinValue,0,double.MaxValue,0,Point,0,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(10,10,20,-10,-10000,0,10000,0,Point,0,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(10,10,20,-10,-10000,0,10000,0,Point,15,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(10,10,20,-10,-100000,0,100000,0,Point,15,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(10,10,20,-10,double.MinValue,0,100000,0,Point,15,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(10,10,20,-10,-100000000000.0d,0,100000000000.0d,0,Point,15,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(0,5,0,-5,-100000000000.0d,0,100000000000.0d,0,Point,0,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection(0,5,0,-5,-5,0,5,0,Point,0,0)&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Maths.GetIntersectionsTests.GetIntersections_ValidParameters_GetIntersection&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_ValidParameters_ReturnAStarNodes&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
 	
 	
 	

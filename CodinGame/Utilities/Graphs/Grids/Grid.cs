@@ -10,11 +10,22 @@ namespace CodinGame.Utilities.Graphs.Grids
 {
     public class Grid
     {
-        public List<GridNode> Nodes { get; } = new List<GridNode>();
-        public List<GridEdge> Edges { get; } = new List<GridEdge>();
+        public List<GridNode> Nodes { get; private set; } = new List<GridNode>();
+        public List<GridEdge> Edges { get; private set; } = new List<GridEdge>();
 
         private int _maxWidth;
         private int _maxHeight;
+
+        public Grid Clone()
+        {
+            return new Grid
+            {
+                Edges = Edges.ToList(),
+                Nodes = Nodes.ToList()
+            };
+        }
+
+        private Grid() {}
 
         public Grid(int width, int height)
         {
@@ -40,14 +51,21 @@ namespace CodinGame.Utilities.Graphs.Grids
 
         public void RemoveConnection(string originId, string destinationId, bool bothWays = true)
         {
-            Logger.Log($"Cutting Connection between {originId} and {destinationId}");
             var originEdge = Edges
                 .FirstOrDefault(edge => edge.OriginId == originId && edge.DestinationId == destinationId);
-            if (originEdge != null) Edges.Remove(originEdge);
+            if (originEdge != null)
+            {
+                Edges.Remove(originEdge);
+                Logger.Log($"Cutting Connection between {originId} and {destinationId}");
+            }
             if (!bothWays) return;
             var destinationEdge = Edges
                 .FirstOrDefault(edge => edge.DestinationId == originId && edge.OriginId == destinationId);
-            if (destinationEdge != null) Edges.Remove(destinationEdge);
+            if (destinationEdge != null)
+            {
+                Edges.Remove(destinationEdge);
+                Logger.Log($"Cutting Connection between {destinationId} and {originId}");
+            }
         }
 
         public void AddConnection(string originId, string destinationId, bool bothWays = true)
@@ -67,6 +85,13 @@ namespace CodinGame.Utilities.Graphs.Grids
                 var newEdge = new GridEdge(destinationId, originId);
                 Edges.Add(newEdge);
             }
+        }
+
+        public bool DoesConnectionExist(string originId, string destinationId)
+        {
+            return Edges
+                .FirstOrDefault(edge => edge.OriginId == originId && edge.DestinationId == destinationId)
+                   != null;
         }
 
         public GridNode GetNode(string nodeId)
