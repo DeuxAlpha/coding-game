@@ -14,7 +14,8 @@ export default defineComponent({
   setup() {
     const site = ref('');
     const sites = [
-      {name: 'Mars Lander', url: 'mars-lander'}
+      {name: 'Mars Lander', url: 'mars-lander'},
+      {name: 'The Great Escape', url: 'great-escape'}
     ]
     const router = useRouter();
 
