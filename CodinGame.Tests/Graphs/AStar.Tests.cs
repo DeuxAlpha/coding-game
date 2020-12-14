@@ -124,5 +124,18 @@ namespace CodinGame.Tests.Graphs
                 Assert.That(nodes.First().Id, Is.EqualTo("1-0"));
             });
         }
+
+        [Test]
+        public void TestAStar_CutOffAtBottom_ReturnsAStarNodes()
+        {
+            var grid = new Grid(9, 9);
+
+            grid.RemoveConnection("1-7", "2-7");
+            grid.RemoveConnection("1-8", "2-8");
+
+            var nodes = grid.GetAStarNodesWithList("1-7", "7-7");
+
+            Console.WriteLine(nodes);
+        }
     }
 }

@@ -8,6 +8,7 @@
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_BigGrid_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStarWithList_BigGrid_ReturnAStarNodes&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::042B9CAA-C89B-46DA-9E83-CD85A18647AB::.NETCoreApp,Version=v3.1::CodinGame.Tests.Graphs.AStarTests.TestAStar_CutOffAtBottom_ReturnsAStarNodes&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	

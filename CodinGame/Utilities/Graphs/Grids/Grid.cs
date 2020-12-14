@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodinGame.Utilities.Extensions;
+using CodinGame.Utilities.Game;
 using CodinGame.Utilities.Heaps;
 using CodinGame.Utilities.Maths;
 using CodinGame.Utilities.Maths.Models;
@@ -39,6 +40,7 @@ namespace CodinGame.Utilities.Graphs.Grids
 
         public void RemoveConnection(string originId, string destinationId, bool bothWays = true)
         {
+            Logger.Log($"Cutting Connection between {originId} and {destinationId}");
             var originEdge = Edges
                 .FirstOrDefault(edge => edge.OriginId == originId && edge.DestinationId == destinationId);
             if (originEdge != null) Edges.Remove(originEdge);

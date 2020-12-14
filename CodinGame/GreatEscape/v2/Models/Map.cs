@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using CodinGame.GreatEscape.v1.Models;
 
 namespace CodinGame.GreatEscape.v2.Models
 {
